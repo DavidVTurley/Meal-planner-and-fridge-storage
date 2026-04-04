@@ -60,8 +60,7 @@ Capture consistent item data needed for tracking and freshness workflows.
 ### Required Fields
 
 - Ingredient name
-- Package quantity (whole packages)
-- Partial amount (allowed values: `0`, `1/4`, `1/2`, `3/4`, `1`)
+- Remaining amount in metric unit (`g` or `ml`) as canonical value
 - Amount per package (snapshot value captured at pantry-entry creation)
 - Measurement unit (`g` or `ml`, snapshot value captured at pantry-entry creation)
 - Location (`pantry`, `fridge`, `freezer`)
@@ -70,15 +69,17 @@ Capture consistent item data needed for tracking and freshness workflows.
 
 ### Snapshot Rules
 
+- One pantry entry represents one physical package.
 - Pantry entries persist their own snapshot package amount and unit from creation time.
 - Snapshot fields on pantry entries do not change when the linked default product is edited later.
+- Package fraction (`0..1`) may be shown for user convenience, but metric remaining amount is the source of truth.
 
 ### Acceptance
 
 - System rejects save if any required field is missing.
-- Partial values outside allowed set are rejected.
 - Units outside `g` and `ml` are rejected.
 - If default changes from 1000g to 800g, existing pantry entries created at 1000g remain 1000g.
+- Precision scenario: using 125g from a 1000g package stores remaining amount as 875g without quarter-step rounding loss.
 
 ## Part 4: Freshness And Status Rules
 
@@ -106,12 +107,14 @@ Keep inventory counts accurate through explicit user updates.
 ### Requirements
 
 - Duplicate adds remain separate entries (no merge behavior in v1).
-- Quantity reduction after usage is manual decrement.
+- Meal-related usage reduction is applied on meal completion (see Part 12).
+- Manual decrement is limited to non-meal usage (snacking, waste, and correction actions).
 
 ### Acceptance
 
 - Adding same item with same location/date creates a separate record.
-- User can manually decrement package/partial amounts after use.
+- Completing a meal applies recipe-related deduction once via meal completion flow.
+- User can manually decrement remaining package amounts for non-meal usage.
 
 ## Part 6: V1 Validation Scenarios
 
@@ -121,7 +124,7 @@ Keep inventory counts accurate through explicit user updates.
 - Add unknown fridge item, create default inline, then save.
 - Override auto-filled sell-by during freezer item add and save.
 - Verify freshness state transitions over time for saved items.
-- Verify manual decrement updates item quantity without merging records.
+- Verify manual decrement updates non-meal usage quantities without merging records.
 
 ## Part 7: Meal Definition And Meal List
 
@@ -158,11 +161,13 @@ Support meal entry even when an ingredient is not yet defined in the known ingre
 - User can add custom/unknown ingredients directly while defining a meal.
 - Unknown ingredient lines still require a usage amount.
 - Unknown ingredients are marked distinctly from known ingredients.
+- Unknown ingredients are treated as non-stock usage unless converted to known ingredients.
 
 ### Acceptance
 
 - User adds a meal containing both known and unknown ingredients and saves successfully.
 - Unknown ingredient entries are visibly identifiable in the saved meal.
+- Unknown ingredient usage can be logged without requiring pantry package allocation.
 
 ## Part 9: Unknown Ingredient Overview And Conversion
 
@@ -192,6 +197,7 @@ Schedule predefined meals in a weekly plan with both fixed meal slots and flexib
 ### Requirements
 
 - Planner is week-based and supports a user-defined week start day.
+- If user has not configured week-start, planner defaults to Monday.
 - Each day includes fixed slots: `Breakfast`, `Lunch`, `Dinner`.
 - Each day also includes an `Additional Meals` list for ad-hoc meals.
 - User can add predefined meals into any fixed slot.
@@ -202,6 +208,7 @@ Schedule predefined meals in a weekly plan with both fixed meal slots and flexib
 
 - User creates a week plan with meals in fixed slots and at least one ad-hoc additional meal.
 - Week view reflects the user's configured week start day.
+- First-time planner view without a user setting starts on Monday.
 - Repeated use of the same meal in multiple day entries is allowed.
 
 ## Part 11: Current Meal Execution And Substitution
@@ -240,12 +247,15 @@ Ensure inventory reflects real usage by applying adjusted actual amounts only wh
   - `package` mode: deduct package/partial package directly.
   - `measurement` mode: convert to package depletion using selected pantry package snapshot `amount per package` and metric unit.
 - Conversion uses metric-only units (`g`, `ml`) and does not support imperial units.
-- Meal completion requires explicit usage allocation to concrete inventory items (packages) for each ingredient line.
-- User cannot confirm meal completion until all ingredient usage is fully allocated.
+- Meal completion requires explicit usage allocation to concrete pantry inventory items (packages) for stock-tracked ingredient lines.
+- User cannot confirm meal completion until all stock-tracked ingredient usage is fully allocated.
 - Allocation supports multi-package usage for a single ingredient line (split across multiple packages).
 - Measurement conversion uses selected allocated pantry packages, not the current default-product package amount.
+- Eligible pantry packages for allocation are determined by shared default-product identity link.
+- Name-only matching is not a valid allocation authority.
 - Mixed-size allocations are supported in one ingredient line (for example, one legacy 1000g package and one newer 800g package).
 - Unknown ingredients added during execution are queued to Unknown Ingredient Overview.
+- Unknown ingredients during execution are logged as non-stock usage and do not require pantry allocation to complete the meal.
 - Existing unknown-ingredient conversion behavior remains the resolution path.
 
 ### Acceptance
@@ -255,8 +265,10 @@ Ensure inventory reflects real usage by applying adjusted actual amounts only wh
 - Unknown ingredients captured during completion appear in the unknown overview.
 - Measurement-based usage deducts inventory according to per-package conversion in metric units.
 - If one package is insufficient, user can allocate remaining usage to additional packages and still complete the meal.
-- Completion is blocked when any ingredient line has unallocated usage.
+- Completion is blocked when any stock-tracked ingredient line has unallocated usage.
 - In mixed-size allocation (1000g + 800g), deduction uses each selected package snapshot size.
+- Meal completion with unknown ingredient lines is allowed when all stock-tracked lines are fully allocated.
+- Same-name ingredients with different default-product identities are not auto-eligible for each other during allocation.
 
 ## Part 13: Meal Usage Allocation (Package-Level Confirmation)
 
@@ -269,11 +281,12 @@ Ensure real inventory depletion is accurate by forcing users to confirm exactly 
 - During meal completion, each ingredient line enters an allocation step.
 - User must select one or more specific pantry inventory items/packages that satisfy the ingredient usage.
 - Split allocation is supported across multiple packages for the same ingredient.
-- Allocation can mix full and partial package consumption.
+- Allocation can mix full and partial consumption across selected packages.
 - Allocation must total the full actual usage amount before confirmation is allowed.
-- If exactly one eligible inventory item exists for an ingredient line, allocation auto-fills to that item.
+- If exactly one eligible linked inventory item exists for an ingredient line, allocation auto-fills to that item.
 - Auto-filled allocation remains editable by the user before final confirmation.
 - Allocation identity is package-specific and always uses the selected package snapshot amount-per-package for conversion.
+- Eligibility requires shared default-product identity link between meal ingredient and pantry package.
 
 ### Acceptance
 
@@ -281,3 +294,4 @@ Ensure real inventory depletion is accurate by forcing users to confirm exactly 
 - System accepts completion only when allocation totals match the actual usage for each ingredient line.
 - System rejects over-allocation or under-allocation and keeps completion blocked until corrected.
 - Single-match flow: when only one eligible package exists, system preselects it and auto-fills the required allocation.
+- Same-name but different default-product-linked packages are excluded from eligibility.

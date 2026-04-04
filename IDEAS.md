@@ -50,7 +50,6 @@ This file is the single source of truth for product ideas.
 
 ## Open Questions
 
-- Should the first experience optimize for speed or detailed inventory accuracy?
 - How much expiration tracking detail do users realistically maintain?
 - What level of household collaboration is needed in v1 (shared lists/plans)?
 
