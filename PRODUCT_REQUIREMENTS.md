@@ -125,6 +125,11 @@ Keep inventory counts accurate through explicit user updates.
 - Override auto-filled sell-by during freezer item add and save.
 - Verify freshness state transitions over time for saved items.
 - Verify manual decrement updates non-meal usage quantities without merging records.
+- Verify first-time planner view defaults to Monday when no week-start preference exists.
+- Verify same-name ingredients with different default-product identities are excluded from allocation eligibility.
+- Verify meal completion with unknown ingredient lines succeeds when stock-tracked lines are fully allocated.
+- Verify metric precision retention in usage and deduction flows.
+- Verify `Use package` shortcut consumes 100% of currently remaining amount on selected package.
 
 ## Part 7: Meal Definition And Meal List
 
@@ -139,16 +144,17 @@ Allow users to create meals and add them to a meal list using known ingredients 
 - Each meal supports multiple ingredient lines.
 - Ingredient lines can reference predefined known ingredients.
 - Each ingredient line requires:
-  - A usage mode (`package` or `measurement`)
+  - A usage mode (`measurement` canonical; `package` shortcut)
   - A defined usage amount
-  - If `measurement` mode is used, unit must be `g` or `ml`
+  - Canonical stored and calculated usage is metric (`g` or `ml`)
 - Imperial units are not supported in v1.
+- Package actions in UI are shortcuts only and map to metric usage.
 
 ### Acceptance
 
 - User creates a meal with at least one known ingredient and amount, then adds it to the meal list.
 - Meal list shows the added meal and its ingredient composition.
-- Meal ingredient lines accept package-based amounts and metric measurement amounts.
+- Meal ingredient lines persist and calculate usage in metric amounts.
 
 ## Part 8: Unknown Ingredient Capture
 
@@ -243,9 +249,10 @@ Ensure inventory reflects real usage by applying adjusted actual amounts only wh
 
 - Inventory updates are triggered only when user marks current meal as completed.
 - Inventory deduction uses actual adjusted amounts, not original planned amounts.
-- Deduction supports two usage modes:
-  - `package` mode: deduct package/partial package directly.
-  - `measurement` mode: convert to package depletion using selected pantry package snapshot `amount per package` and metric unit.
+- Deduction is metric-canonical for all meal usage.
+- Package shortcut handling:
+  - `Use package` means consume 100% of currently remaining amount of the selected package.
+  - If a package is partially remaining, `Use package` consumes only that remaining amount (not original full package amount).
 - Conversion uses metric-only units (`g`, `ml`) and does not support imperial units.
 - Meal completion requires explicit usage allocation to concrete pantry inventory items (packages) for stock-tracked ingredient lines.
 - User cannot confirm meal completion until all stock-tracked ingredient usage is fully allocated.
@@ -295,3 +302,19 @@ Ensure real inventory depletion is accurate by forcing users to confirm exactly 
 - System rejects over-allocation or under-allocation and keeps completion blocked until corrected.
 - Single-match flow: when only one eligible package exists, system preselects it and auto-fills the required allocation.
 - Same-name but different default-product-linked packages are excluded from eligibility.
+
+## Part 14: Grocery List (Future Scope Placeholder)
+
+### Goal
+
+Keep implementation docs aligned with idea-level capabilities while intentionally deferring grocery-list behavior details.
+
+### Requirements
+
+- Grocery-list capability is planned and recognized, but out of v1 scope.
+- Future grocery-list behavior should derive needs from weekly plan and current inventory state.
+- No v1 behavioral commitments are defined yet for grocery list generation, grouping, or prioritization.
+
+### Acceptance
+
+- Implementation document explicitly records grocery list as future scope.

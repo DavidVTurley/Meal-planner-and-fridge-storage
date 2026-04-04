@@ -34,7 +34,7 @@ This file is the single source of truth for product ideas.
 
 ## Implementation Notes
 
-- Detailed implementation requirements are tracked in `IMPLEMENTATION.md`.
+- Detailed implementation requirements are tracked in `PRODUCT_REQUIREMENTS.md`.
 
 ## User Workflows/Journeys
 
