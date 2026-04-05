@@ -14,6 +14,7 @@ Primary value:
 - `documentation/IDEAS.md`: high-level product ideas, goals, risks, and future thoughts.
 - `documentation/PRODUCT_REQUIREMENTS.md`: implementation-ready product behavior and acceptance criteria for v1.
 - `documentation/TECHNICAL_SPEC_INVENTORY_FOUNDATION.md`: locked implementation plan for v1 inventory foundation architecture and rules.
+- `documentation/TECHNICAL_SPEC_MEAL_DEFINITION_AND_UNKNOWNS.md`: locked implementation plan for v1 meal definition and unknown ingredient handling.
 - `documentation/CODEBASE_STYLE.md`: codebase architecture, coding standards, and API/data/testing conventions.
 
 ## V1 Scope
