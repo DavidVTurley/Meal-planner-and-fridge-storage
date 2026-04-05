@@ -13,9 +13,9 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("MealPlanner")
-            ?? "Host=localhost;Port=5432;Database=meal_planner;Username=postgres;Password=postgres";
+            ?? "Server=(localdb)\\MSSQLLocalDB;Database=meal_planner;Trusted_Connection=True;TrustServerCertificate=True";
 
-        services.AddDbContext<MealPlannerDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddDbContext<MealPlannerDbContext>(options => options.UseSqlServer(connectionString));
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<MealPlannerDbContext>());
         services.AddScoped<IDefaultProductRepository, DefaultProductRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();

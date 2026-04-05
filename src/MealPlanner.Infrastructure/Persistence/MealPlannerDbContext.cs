@@ -46,6 +46,11 @@ public sealed class MealPlannerDbContext(DbContextOptions<MealPlannerDbContext> 
             builder.Property(x => x.UpdatedAtUtc).IsRequired();
             builder.HasIndex(x => new { x.UserId, x.LocationCanonical });
             builder.HasIndex(x => new { x.UserId, x.DefaultProductId });
+            builder
+                .HasOne<DefaultProduct>()
+                .WithMany()
+                .HasForeignKey(x => x.DefaultProductId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -56,3 +56,24 @@ Out of scope:
    - Part 6 scenarios
 5. Future work alignment
    - Part 14 placeholder (grocery list)
+
+## Database Migrations (EF Core)
+
+Migrations are configured in `src/MealPlanner.Infrastructure` using `MealPlannerDbContextFactory`.
+
+Commands:
+
+```powershell
+$env:DOTNET_CLI_HOME='C:\Users\david\source\repos\Meal planner and fridge storage\.dotnet'
+$env:NUGET_PACKAGES='C:\Users\david\source\repos\Meal planner and fridge storage\.nuget\packages'
+$env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE='1'
+
+# Optional: override DB connection used by migration tooling
+$env:MEALPLANNER_DB_CONNECTION='Server=(localdb)\MSSQLLocalDB;Database=meal_planner;Trusted_Connection=True;TrustServerCertificate=True'
+
+# Add migration
+.\.dotnet\tools\dotnet-ef migrations add <MigrationName> --no-build --project src/MealPlanner.Infrastructure/MealPlanner.Infrastructure.csproj --context MealPlannerDbContext --output-dir Persistence/Migrations
+
+# Apply migration
+.\.dotnet\tools\dotnet-ef database update --no-build --project src/MealPlanner.Infrastructure/MealPlanner.Infrastructure.csproj --context MealPlannerDbContext
+```
