@@ -11,8 +11,9 @@ Primary value:
 
 ## Document Map
 
-- `IDEAS.md`: high-level product ideas, goals, risks, and future thoughts.
-- `PRODUCT_REQUIREMENTS.md`: implementation-ready product behavior and acceptance criteria for v1.
+- `documentation/IDEAS.md`: high-level product ideas, goals, risks, and future thoughts.
+- `documentation/PRODUCT_REQUIREMENTS.md`: implementation-ready product behavior and acceptance criteria for v1.
+- `documentation/TECHNICAL_SPEC_INVENTORY_FOUNDATION_V1.md`: locked implementation plan for v1 inventory foundation architecture and rules.
 
 ## V1 Scope
 
@@ -45,7 +46,7 @@ Out of scope:
 ## Implementation Priority Order
 
 1. Inventory foundation
-   - Parts 1-5 in `PRODUCT_REQUIREMENTS.md`
+   - Parts 1-5 in `documentation/PRODUCT_REQUIREMENTS.md`
 2. Meal definition and unknown handling
    - Parts 7-9
 3. Weekly planning and execution
