@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using MealPlanner.Application.Inventory;
 using MealPlanner.Domain.Inventory;
 using MealPlanner.Infrastructure;

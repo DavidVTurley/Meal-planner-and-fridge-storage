@@ -1,4 +1,4 @@
-﻿using MealPlanner.Domain.Inventory;
+using MealPlanner.Domain.Inventory;
 
 namespace MealPlanner.Domain.Tests.Inventory;
 

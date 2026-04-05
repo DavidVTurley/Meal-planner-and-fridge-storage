@@ -1,4 +1,4 @@
-﻿# Meal Planner Implementation
+# Meal Planner Implementation
 
 This document captures implementation-ready product behavior. Each part is separated so work can be planned and delivered incrementally.
 

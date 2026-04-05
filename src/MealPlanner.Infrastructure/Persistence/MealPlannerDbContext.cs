@@ -1,4 +1,4 @@
-﻿using MealPlanner.Application.Abstractions;
+using MealPlanner.Application.Abstractions;
 using MealPlanner.Domain.Inventory;
 using Microsoft.EntityFrameworkCore;
 

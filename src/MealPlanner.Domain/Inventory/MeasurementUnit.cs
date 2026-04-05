@@ -1,4 +1,4 @@
-﻿namespace MealPlanner.Domain.Inventory;
+namespace MealPlanner.Domain.Inventory;
 
 public enum MeasurementUnit
 {

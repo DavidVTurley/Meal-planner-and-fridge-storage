@@ -1,4 +1,4 @@
-﻿# Title
+# Title
 
 Inventory Foundation v1 Implementation Kickoff
 

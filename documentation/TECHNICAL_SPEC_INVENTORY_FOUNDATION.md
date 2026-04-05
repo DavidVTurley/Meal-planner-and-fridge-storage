@@ -1,4 +1,4 @@
-﻿# Inventory Foundation Technical Spec (.NET 10 with .NET 11 Readiness)
+# Inventory Foundation Technical Spec (.NET 10 with .NET 11 Readiness)
 
 Spec Version: v1.1  
 Last Updated: 2026-04-05

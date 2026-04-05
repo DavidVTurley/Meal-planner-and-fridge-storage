@@ -1,4 +1,4 @@
-﻿# Title
+# Title
 
 Implementation Plan History Policy
 

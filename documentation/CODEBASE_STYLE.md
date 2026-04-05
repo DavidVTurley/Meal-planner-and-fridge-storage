@@ -1,4 +1,4 @@
-﻿# Codebase Style Guide (v1)
+# Codebase Style Guide (v1)
 
 ## Architecture
 
