@@ -8,3 +8,17 @@ Desktop.ini
 .idea/
 *.swp
 *.swo
+
+# .NET
+bin/
+obj/
+.vs/
+.dotnet/
+.nuget/
+TestResults/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.cache
+*.log
