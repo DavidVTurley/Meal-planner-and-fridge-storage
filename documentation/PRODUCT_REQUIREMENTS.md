@@ -35,11 +35,9 @@ Speed up repeat item entry by storing reusable per-user defaults.
   - Amount per package
   - Measurement unit (`g` or `ml`)
 - Editing a default product (for example, changing package amount from 1000g to 800g) applies only to new pantry entries created after the change.
-- On first-time ingredient use, system attempts to infer default values from the user's same-ingredient history (recent pantry/default records).
-- If inference is reliable, inferred default fields are prefilled.
-- Prefilled inferred values remain editable by the user before save.
-- If inference is not reliable, first-time save is blocked until user enters all required default fields (`default shelf-life days`, `amount per package`, `measurement unit`).
-- No system-wide fallback defaults are used when inference is not reliable.
+- On first-time ingredient use, v1 does not infer default values from history.
+- First-time save is blocked until user enters all required default fields (`default shelf-life days`, `amount per package`, `measurement unit`).
+- No system-wide fallback defaults are used when required default fields are missing.
 - During item add, sell-by date auto-fills as `date added + default shelf-life days`.
 - User can override the auto-filled sell-by date before save.
 
@@ -48,8 +46,7 @@ Speed up repeat item entry by storing reusable per-user defaults.
 - Default with 10 shelf-life days auto-fills sell-by to 10 days after add date.
 - User override of sell-by persists when item is saved.
 - Default edit isolation: changing a default package amount affects new entries only.
-- Inference success: previously used ingredient pre-fills default values from same-ingredient user history, and user can edit before save.
-- Inference failure: first-time ingredient with no reliable same-ingredient history requires full default input before save is allowed.
+- First-time ingredient creation requires full default input before save is allowed.
 
 ## Part 3: Inventory Item Data Model
 
@@ -63,7 +60,7 @@ Capture consistent item data needed for tracking and freshness workflows.
 - Remaining amount in metric unit (`g` or `ml`) as canonical value
 - Amount per package (snapshot value captured at pantry-entry creation)
 - Measurement unit (`g` or `ml`, snapshot value captured at pantry-entry creation)
-- Location (`pantry`, `fridge`, `freezer`)
+- Location (string; supports canonical values like `pantry`, `fridge`, `freezer` and custom user-defined locations)
 - Sell-by date
 - Linked default product
 

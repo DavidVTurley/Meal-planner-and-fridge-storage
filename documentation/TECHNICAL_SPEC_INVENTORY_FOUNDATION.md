@@ -1,4 +1,7 @@
-# Inventory Foundation v3 (Locked Spec, .NET 10 with .NET 11 Readiness)
+# Inventory Foundation Technical Spec (.NET 10 with .NET 11 Readiness)
+
+Spec Version: v1.1  
+Last Updated: 2026-04-05
 
 ## Summary
 
@@ -21,6 +24,7 @@
 - **`default_product` (append-only versioned):**
   - Fields: `Id`, `UserId`, `Name`, `DefaultShelfLifeDays`, `AmountPerPackage`, `Unit`, `Version`, `PreviousVersionId` (nullable self-FK), `IsCurrent`, timestamps.
   - Update behavior: edits create a new version row; previous versions become non-current and immutable.
+  - New version edits are prefilled from the previous version and remain fully editable, including unit.
   - Existing `inventory_item` records keep their original linked version and snapshot values.
 - **`inventory_item` (physical package):**
   - Fields: `Id`, `UserId`, `IngredientName`, `RemainingAmountMetric`, `SnapshotAmountPerPackage`, `SnapshotUnit`, `LocationCanonical`, `LocationDisplay`, `DateAdded`, `SellByDate`, `DefaultProductId`, concurrency token, timestamps.
@@ -31,13 +35,11 @@
   - Persist display value from user input as default UI label.
   - Logical matching/filtering uses canonical value.
 
-## Inference Policy (Conservative, Deterministic)
+## Inference Policy (v1)
 
-- Inputs: same-user, same normalized ingredient name from historical defaults and inventory snapshots.
-- Inference is allowed only when reliability passes strict thresholds (minimum evidence count + dominant consistent values across required fields).
-- Any required field failing reliability is treated as missing and must be user-entered before save.
-- No global/system fallback defaults.
-- API returns inference diagnostics (`fields_inferred`, `source_count`, `confidence`, `manual_required_fields`) for transparency and tuning.
+- No inference is used in v1 for first-time ingredient creation.
+- All required default fields must be manually entered on first-time creation.
+- No global/system fallback defaults are used.
 
 ## API Surface (Inventory First)
 
@@ -54,6 +56,7 @@
 ## Integrity, Concurrency, And Validation
 
 - Use optimistic concurrency on `inventory_item` updates; stale write attempts return `409 Conflict`.
+- Inventory update endpoints require `If-Match` with a server-issued `ETag`; stale tokens return `409 Conflict`.
 - Manual decrement cannot make remaining amount negative.
 - Save is blocked if required fields/default association are missing.
 - Sell-by defaults to `DateAdded + DefaultShelfLifeDays`, user override allowed.
