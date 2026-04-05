@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MealPlanner.Api/MealPlanner.Api.csproj" />
+    <Project Path="src/MealPlanner.Application/MealPlanner.Application.csproj" />
+    <Project Path="src/MealPlanner.Domain/MealPlanner.Domain.csproj" />
+    <Project Path="src/MealPlanner.Infrastructure/MealPlanner.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MealPlanner.Domain.Tests/MealPlanner.Domain.Tests.csproj" />
+    <Project Path="tests/MealPlanner.IntegrationTests/MealPlanner.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

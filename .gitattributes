@@ -1,0 +1,6 @@
+* text=auto eol=crlf
+
+# Keep scripts/configs that commonly require LF
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
