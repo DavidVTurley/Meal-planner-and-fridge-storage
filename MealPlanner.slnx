@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/src/">
     <Project Path="src/MealPlanner.Api/MealPlanner.Api.csproj" />
     <Project Path="src/MealPlanner.Application/MealPlanner.Application.csproj" />

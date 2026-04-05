@@ -1,4 +1,4 @@
-using MealPlanner.Application.Inventory;
+﻿using MealPlanner.Application.Inventory;
 using MealPlanner.Domain.Inventory;
 using MealPlanner.Infrastructure.Persistence;
 using MealPlanner.Infrastructure.Repositories;

@@ -1,4 +1,4 @@
-# Meal Planner + Pantry/Fridge/Freezer Tracker
+﻿# Meal Planner + Pantry/Fridge/Freezer Tracker
 
 ## Project Purpose
 

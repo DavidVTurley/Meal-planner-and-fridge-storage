@@ -1,4 +1,4 @@
-namespace MealPlanner.Application.Abstractions;
+﻿namespace MealPlanner.Application.Abstractions;
 
 public interface IApplicationDbContext
 {

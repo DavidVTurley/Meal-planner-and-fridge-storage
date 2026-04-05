@@ -1,3 +1,3 @@
-namespace MealPlanner.Domain.Inventory;
+﻿namespace MealPlanner.Domain.Inventory;
 
 public sealed class DomainValidationException(string message) : Exception(message);

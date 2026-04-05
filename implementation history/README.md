@@ -1,4 +1,4 @@
-# Implementation History
+﻿# Implementation History
 
 This folder stores append-only records of implementation plans for this repository.
 

@@ -1,4 +1,4 @@
-# Meal Planner + Pantry/Fridge/Freezer Ideas
+﻿# Meal Planner + Pantry/Fridge/Freezer Ideas
 
 This file is the single source of truth for product ideas.
 
