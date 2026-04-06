@@ -63,6 +63,17 @@
           tabindex="-1">
           Actual Inventory Management
         </button>
+        <button
+          id="tab-meals"
+          class="tab-btn"
+          role="tab"
+          type="button"
+          aria-selected="false"
+          aria-controls="panel-meals"
+          data-tab-target="panel-meals"
+          tabindex="-1">
+          Meals
+        </button>
       </div>
     </section>
 
@@ -237,6 +248,106 @@
             </tr>
           </thead>
           <tbody id="inventory-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section
+      id="panel-meals"
+      class="panel tab-panel"
+      role="tabpanel"
+      aria-labelledby="tab-meals"
+      hidden>
+      <div class="section-head">
+        <h2>Meals</h2>
+        <button id="meals-list-btn" type="button">List Meals</button>
+      </div>
+
+      <form id="meal-create-form" class="stacked-form">
+        <h3>Create Meal</h3>
+        <div class="form-row row-2">
+          <label>
+            Meal Name
+            <input id="meal-create-name" type="text" required placeholder="Tomato Pasta" />
+          </label>
+          <div class="repeater-actions">
+            <button id="meal-create-add-line" type="button">Add Ingredient Line</button>
+          </div>
+        </div>
+        <div id="meal-create-lines" class="ingredient-lines"></div>
+        <button type="submit">Create Meal</button>
+      </form>
+
+      <form id="meal-get-form" class="grid grid-4">
+        <label>
+          Meal ID
+          <input id="meal-get-id" type="text" required />
+        </label>
+        <button type="submit">Get Meal</button>
+      </form>
+
+      <form id="meal-update-form" class="stacked-form">
+        <h3>Update Meal</h3>
+        <div class="form-row row-2">
+          <label>
+            Meal To Update
+            <select id="meal-update-id" required></select>
+          </label>
+          <label>
+            Meal Name
+            <input id="meal-update-name" type="text" required />
+          </label>
+          <div class="repeater-actions">
+            <button id="meal-update-add-line" type="button">Add Ingredient Line</button>
+          </div>
+        </div>
+        <div id="meal-update-lines" class="ingredient-lines"></div>
+        <button type="submit">Update Meal</button>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Ingredient Lines</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="meals-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="section-head">
+        <h2>Unknown Ingredients</h2>
+        <button id="unknown-list-btn" type="button">List Unknown Ingredients</button>
+      </div>
+
+      <form id="unknown-convert-form" class="grid grid-4">
+        <label>
+          Unknown Ingredient
+          <select id="unknown-convert-id" required></select>
+        </label>
+        <label>
+          Convert To Default Product
+          <select id="unknown-convert-default-id" required></select>
+        </label>
+        <button type="submit">Convert Unknown</button>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Display Name</th>
+              <th>Normalized</th>
+              <th>Unit</th>
+              <th>Meal References</th>
+            </tr>
+          </thead>
+          <tbody id="unknown-table-body"></tbody>
         </table>
       </div>
     </section>
