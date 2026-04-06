@@ -76,6 +76,36 @@ public sealed class MealServiceTests
         Assert.Empty(unknownsAfter);
     }
 
+    [Fact]
+    public async Task PieceUnit_FlowsThroughKnownAndUnknownMealLines()
+    {
+        await using var db = CreateDb();
+        var defaultService = new DefaultProductService(new DefaultProductRepository(db), db);
+        var mealService = CreateMealService(db);
+
+        var knownPiece = await defaultService.CreateAsync(
+            "user-1",
+            new CreateDefaultProductRequest("Cherry Tomatoes", 5, 50, "piece"),
+            CancellationToken.None);
+
+        var meal = await mealService.CreateAsync(
+            "user-1",
+            new CreateMealRequest(
+                "Tomato Snack",
+                [
+                    new UpsertMealIngredientLineRequest("known", knownPiece.Id, null, null, null, 12.5m),
+                    new UpsertMealIngredientLineRequest("unknown", null, null, "Olive", "piece", 8.25m),
+                ]),
+            CancellationToken.None);
+
+        Assert.Contains(meal.IngredientLines, x => x.IngredientKind == "known" && x.Unit == "piece");
+        Assert.Contains(meal.IngredientLines, x => x.IngredientKind == "unknown" && x.Unit == "piece");
+
+        var unknown = (await mealService.ListUnknownIngredientsAsync("user-1", CancellationToken.None)).Single();
+        Assert.Equal("piece", unknown.Unit);
+        Assert.Equal("olive", unknown.NormalizedName);
+    }
+
     private static MealService CreateMealService(MealPlannerDbContext db)
     {
         return new MealService(

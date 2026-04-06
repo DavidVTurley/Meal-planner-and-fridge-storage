@@ -558,6 +558,7 @@ function appendIngredientLine(container, mode, initialValue = null) {
       <select class="line-unknown-unit">
         <option value="g">g</option>
         <option value="ml">ml</option>
+        <option value="piece">piece</option>
       </select>
     </label>
     <div class="line-actions">

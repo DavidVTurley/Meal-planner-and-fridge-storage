@@ -27,7 +27,7 @@ In scope:
 - Weekly planner (Breakfast/Lunch/Dinner + additional ad-hoc meals)
 - Current meal execution with actual usage adjustment
 - Package-level allocation at meal completion
-- Metric-only canonical usage (`g`/`ml`)
+- Canonical usage units (`g`/`ml`/`piece`) with decimal amounts
 
 Out of scope:
 - Grocery list generation behavior (tracked as future placeholder)

@@ -71,4 +71,26 @@ public sealed class InventoryServiceTests
         db.Database.EnsureCreated();
         return db;
     }
+
+    [Fact]
+    public async Task CreateDefaultAndInventory_WithPieceUnit_Works()
+    {
+        await using var db = CreateDb();
+        var defaultService = new DefaultProductService(new DefaultProductRepository(db), db);
+        var inventoryService = new InventoryService(new InventoryItemRepository(db), new DefaultProductRepository(db), db);
+
+        var createdDefault = await defaultService.CreateAsync(
+            "user-1",
+            new CreateDefaultProductRequest("Cherry Tomatoes", 5, 50, "piece"),
+            CancellationToken.None);
+
+        var createdItem = await inventoryService.CreateAsync(
+            "user-1",
+            new CreateInventoryItemRequest("Cherry Tomatoes", 49.5m, "Fridge", new DateOnly(2026, 4, 6), null, createdDefault.Id),
+            CancellationToken.None);
+
+        Assert.Equal("piece", createdDefault.Unit);
+        Assert.Equal("piece", createdItem.SnapshotUnit);
+        Assert.Equal(49.5m, createdItem.RemainingAmountMetric);
+    }
 }

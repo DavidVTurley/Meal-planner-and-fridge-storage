@@ -26,7 +26,8 @@ public sealed class MealPlannerDbContext(DbContextOptions<MealPlannerDbContext> 
             builder.HasIndex(x => x.Code).IsUnique();
             builder.HasData(
                 new { Id = MeasurementTypeIds.Grams, Code = MeasurementTypeCodes.Grams, Name = "Grams" },
-                new { Id = MeasurementTypeIds.Milliliters, Code = MeasurementTypeCodes.Milliliters, Name = "Milliliters" });
+                new { Id = MeasurementTypeIds.Milliliters, Code = MeasurementTypeCodes.Milliliters, Name = "Milliliters" },
+                new { Id = MeasurementTypeIds.Piece, Code = MeasurementTypeCodes.Piece, Name = "Piece" });
         });
 
         modelBuilder.Entity<DefaultProduct>(builder =>

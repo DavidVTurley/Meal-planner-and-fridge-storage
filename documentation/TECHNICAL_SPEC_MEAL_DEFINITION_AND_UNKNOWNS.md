@@ -13,7 +13,7 @@ Last Updated: 2026-04-05
 
 ## Core Rules
 
-- Canonical units remain metric only (`g`, `ml`).
+- Canonical units are `g`, `ml`, and `piece`.
 - Meal ingredient lines support usage modes:
   - `measurement` (explicit metric amount)
   - `package` (shortcut mode; still stored as metric)
@@ -59,7 +59,7 @@ Last Updated: 2026-04-05
   - Meal name present.
   - At least one ingredient line.
   - Every line has usage mode and metric usage amount.
-  - Unit is `g` or `ml`.
+  - Unit is `g`, `ml`, or `piece`.
 - Unknown ingredient line behavior:
   - Stores unknown reference and display name.
   - Appears in unknown ingredient overview.

@@ -33,7 +33,7 @@ Speed up repeat item entry by storing reusable per-user defaults.
   - Product name
   - Default shelf-life days
   - Amount per package
-  - Measurement unit (`g` or `ml`)
+  - Measurement unit (`g`, `ml`, or `piece`)
 - Editing a default product (for example, changing package amount from 1000g to 800g) applies only to new pantry entries created after the change.
 - On first-time ingredient use, v1 does not infer default values from history.
 - First-time save is blocked until user enters all required default fields (`default shelf-life days`, `amount per package`, `measurement unit`).
@@ -57,9 +57,9 @@ Capture consistent item data needed for tracking and freshness workflows.
 ### Required Fields
 
 - Ingredient name
-- Remaining amount in metric unit (`g` or `ml`) as canonical value
+- Remaining amount in canonical unit (`g`, `ml`, or `piece`) as canonical value
 - Amount per package (snapshot value captured at pantry-entry creation)
-- Measurement unit (`g` or `ml`, snapshot value captured at pantry-entry creation)
+- Measurement unit (`g`, `ml`, or `piece`; snapshot value captured at pantry-entry creation)
 - Location (string; supports canonical values like `pantry`, `fridge`, `freezer` and custom user-defined locations)
 - Sell-by date
 - Linked default product
@@ -74,7 +74,7 @@ Capture consistent item data needed for tracking and freshness workflows.
 ### Acceptance
 
 - System rejects save if any required field is missing.
-- Units outside `g` and `ml` are rejected.
+- Units outside `g`, `ml`, and `piece` are rejected.
 - If default changes from 1000g to 800g, existing pantry entries created at 1000g remain 1000g.
 - Precision scenario: using 125g from a 1000g package stores remaining amount as 875g without quarter-step rounding loss.
 
@@ -143,7 +143,7 @@ Allow users to create meals and add them to a meal list using known ingredients 
 - Each ingredient line requires:
   - A usage mode (`measurement` canonical; `package` shortcut)
   - A defined usage amount
-  - Canonical stored and calculated usage is metric (`g` or `ml`)
+  - Canonical stored and calculated usage supports `g`, `ml`, and `piece`
 - Imperial units are not supported in v1.
 - Package actions in UI are shortcuts only and map to metric usage.
 
@@ -250,7 +250,7 @@ Ensure inventory reflects real usage by applying adjusted actual amounts only wh
 - Package shortcut handling:
   - `Use package` means consume 100% of currently remaining amount of the selected package.
   - If a package is partially remaining, `Use package` consumes only that remaining amount (not original full package amount).
-- Conversion uses metric-only units (`g`, `ml`) and does not support imperial units.
+- Conversion uses canonical units (`g`, `ml`, `piece`) and does not support imperial units.
 - Meal completion requires explicit usage allocation to concrete pantry inventory items (packages) for stock-tracked ingredient lines.
 - User cannot confirm meal completion until all stock-tracked ingredient usage is fully allocated.
 - Allocation supports multi-package usage for a single ingredient line (split across multiple packages).

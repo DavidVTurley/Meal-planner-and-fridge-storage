@@ -5,6 +5,16 @@ namespace MealPlanner.Domain.Tests.Inventory;
 public sealed class InventoryDomainTests
 {
     [Fact]
+    public void MeasurementTypeMapper_ParsesAndFormats_Piece()
+    {
+        var id = MeasurementTypeMapper.ParseId("piece");
+        var apiValue = MeasurementTypeMapper.ToApiValue(id);
+
+        Assert.Equal(MeasurementTypeIds.Piece, id);
+        Assert.Equal("piece", apiValue);
+    }
+
+    [Fact]
     public void CreateNextVersion_MarksPreviousNonCurrent_AndIncrementsVersion()
     {
         var original = DefaultProduct.Create("user-1", "Pasta", 7, 1000, MeasurementTypeIds.Grams);

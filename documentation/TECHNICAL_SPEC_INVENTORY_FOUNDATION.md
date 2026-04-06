@@ -16,7 +16,7 @@ Last Updated: 2026-04-05
 
 - **Platform strategy:** `.NET 10` is the production baseline. Add a non-blocking `.NET 11` CI lane (build/tests) to surface compatibility issues early.
 - **Enum vs string governance:** If a field choice between enum and string is ambiguous in requirements, clarification is required before implementation. Enforce via ADR + PR checklist.
-- **Units:** canonical metric only (`g`, `ml`) with domain validation.
+- **Units:** canonical units (`g`, `ml`, `piece`) with domain validation.
 - **Freshness time semantics:** date-only evaluation in user timezone (not server-local/UTC timestamp semantics).
 
 ## Data Model And Contracts
