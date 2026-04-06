@@ -31,6 +31,14 @@ if (app.Environment.IsDevelopment())
     app.MapGet("/openapi", () => Results.Content(OpenApiEndpointExtensions.SwaggerUiHtml, "text/html"));
 }
 
+app.UseStaticFiles();
+
+app.MapGet("/ui", (IWebHostEnvironment environment) =>
+{
+    var filePath = Path.Combine(environment.WebRootPath, "ui", "index.html");
+    return Results.File(filePath, "text/html");
+});
+
 app.UseExceptionHandler(exceptionApp =>
 {
     exceptionApp.Run(async context =>

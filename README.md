@@ -78,3 +78,23 @@ $env:MEALPLANNER_DB_CONNECTION='Server=(localdb)\MSSQLLocalDB;Database=meal_plan
 # Apply migration
 .\.dotnet\tools\dotnet-ef database update --no-build --project src/MealPlanner.Infrastructure/MealPlanner.Infrastructure.csproj --context MealPlannerDbContext
 ```
+
+## UI Testing Harness (`/ui`)
+
+The API now serves a lightweight test UI for manual end-to-end checks against your local database.
+
+1. Run the API:
+
+```powershell
+$env:DOTNET_CLI_HOME='C:\Users\david\source\repos\Meal planner and fridge storage\.dotnet'
+$env:NUGET_PACKAGES='C:\Users\david\source\repos\Meal planner and fridge storage\.nuget\packages'
+$env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE='1'
+dotnet run --project src/MealPlanner.Api/MealPlanner.Api.csproj
+```
+
+2. Open the test UI in your browser:
+   - `http://localhost:5192/ui`
+
+3. Key request requirements:
+   - `/api/*` endpoints require `X-User-Id` (configurable in the UI's global request settings).
+   - Manual decrement requires `If-Match` with a quoted ETag value (for example `"abc123"`). The UI captures and reuses ETags from API responses.

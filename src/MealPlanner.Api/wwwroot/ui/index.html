@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MealPlanner UI Harness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/ui/styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <p class="kicker">MealPlanner Dev Harness</p>
+      <h1>Inventory API Test UI</h1>
+      <p class="subtitle">
+        Exercise default products, inventory operations, and ETag concurrency from one page.
+      </p>
+    </header>
+
+    <section class="panel">
+      <h2>Global Request Settings</h2>
+      <form id="settings-form" class="grid grid-3">
+        <label>
+          Base URL
+          <input id="base-url" type="url" value="" placeholder="https://localhost:7215" />
+        </label>
+        <label>
+          X-User-Id
+          <input id="user-id" type="text" value="local-user-1" />
+        </label>
+        <label class="toggle">
+          <span>Header Mode</span>
+          <span>
+            <input id="include-user-id" type="checkbox" checked />
+            Include `X-User-Id` on `/api/*` requests
+          </span>
+        </label>
+      </form>
+    </section>
+
+    <section class="panel tabs-shell">
+      <div class="tab-list" role="tablist" aria-label="Inventory workflow tabs">
+        <button
+          id="tab-default"
+          class="tab-btn"
+          role="tab"
+          type="button"
+          aria-selected="true"
+          aria-controls="panel-default"
+          data-tab-target="panel-default">
+          Default Inventory
+        </button>
+        <button
+          id="tab-actual"
+          class="tab-btn"
+          role="tab"
+          type="button"
+          aria-selected="false"
+          aria-controls="panel-actual"
+          data-tab-target="panel-actual"
+          tabindex="-1">
+          Actual Inventory Management
+        </button>
+      </div>
+    </section>
+
+    <section
+      id="panel-default"
+      class="panel tab-panel"
+      role="tabpanel"
+      aria-labelledby="tab-default">
+      <div class="section-head">
+        <h2>Default Products</h2>
+        <button id="default-list-btn" type="button">List Current</button>
+      </div>
+
+      <form id="default-create-form" class="grid grid-4">
+        <label>
+          Name
+          <input id="default-name" type="text" required placeholder="Milk" />
+        </label>
+        <label>
+          Shelf-Life (days)
+          <input id="default-shelf" type="number" min="1" required value="7" />
+        </label>
+        <label>
+          Amount / Package
+          <input id="default-amount" type="number" min="0.001" step="0.001" required value="1000" />
+        </label>
+        <label>
+          Unit
+          <select id="default-unit">
+            <option value="g">g</option>
+            <option value="ml" selected>ml</option>
+          </select>
+        </label>
+        <button type="submit">Create Default Product</button>
+      </form>
+
+      <form id="default-update-form" class="stacked-form">
+        <div class="form-row row-2">
+          <label>
+            Product To Version
+            <select id="default-update-id" required></select>
+          </label>
+          <label>
+            Name
+            <input id="default-update-name" type="text" required />
+          </label>
+        </div>
+        <div class="form-row row-4">
+          <label>
+            Shelf-Life (days)
+            <input id="default-update-shelf" type="number" min="1" required />
+          </label>
+          <label>
+            Amount / Package
+            <input id="default-update-amount" type="number" min="0.001" step="0.001" required />
+          </label>
+          <label>
+            Unit
+            <select id="default-update-unit">
+              <option value="g">g</option>
+              <option value="ml">ml</option>
+            </select>
+          </label>
+          <button class="action-btn" type="submit">Create Next Version</button>
+        </div>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Shelf-Life</th>
+              <th>Amount</th>
+              <th>Unit</th>
+              <th>Version</th>
+              <th>Current</th>
+            </tr>
+          </thead>
+          <tbody id="default-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section
+      id="panel-actual"
+      class="panel tab-panel"
+      role="tabpanel"
+      aria-labelledby="tab-actual"
+      hidden>
+      <div class="section-head">
+        <h2>Inventory</h2>
+        <button id="inventory-list-btn" type="button">List Inventory</button>
+      </div>
+
+      <form id="inventory-create-form" class="grid grid-4">
+        <label>
+          Ingredient Name
+          <input id="inventory-name" type="text" required placeholder="Milk" />
+        </label>
+        <label>
+          Remaining Amount (metric)
+          <input id="inventory-remaining" type="number" min="0.001" step="0.001" required value="1000" />
+        </label>
+        <label>
+          Location
+          <input id="inventory-location" type="text" required placeholder="Fridge" />
+        </label>
+        <label>
+          Date Added
+          <input id="inventory-date-added" type="date" required />
+        </label>
+        <label>
+          Sell-By Date (optional)
+          <input id="inventory-sell-by" type="date" />
+        </label>
+        <p class="hint">
+          Sell-by auto-calculates from Date Added + selected default product shelf-life. You can still override it.
+        </p>
+        <label>
+          Default Product
+          <select id="inventory-default-id" required></select>
+        </label>
+        <button type="submit">Create Inventory Item</button>
+      </form>
+
+      <form id="inventory-filter-form" class="grid grid-4">
+        <label>
+          Filter Location
+          <input id="inventory-filter-location" type="text" placeholder="Fridge" />
+        </label>
+        <label>
+          Search
+          <input id="inventory-filter-search" type="text" placeholder="milk" />
+        </label>
+        <button type="submit">List With Filters</button>
+      </form>
+
+      <form id="inventory-get-form" class="grid grid-4">
+        <label>
+          Inventory Item ID
+          <input id="inventory-get-id" type="text" required />
+        </label>
+        <button type="submit">Get Inventory Item</button>
+      </form>
+
+      <form id="inventory-decrement-form" class="grid grid-4">
+        <label>
+          Inventory Item ID
+          <input id="decrement-id" type="text" required />
+        </label>
+        <label>
+          Amount to Decrement
+          <input id="decrement-amount" type="number" min="0.001" step="0.001" required value="100" />
+        </label>
+        <label>
+          If-Match (quoted ETag)
+          <input id="decrement-if-match" type="text" required placeholder="&quot;etag-value&quot;" />
+        </label>
+        <button type="submit">Manual Decrement</button>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Ingredient</th>
+              <th>Remaining</th>
+              <th>Location</th>
+              <th>Freshness</th>
+              <th>ETag</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel response-panel">
+      <h2>Response Inspector</h2>
+      <div class="status-row">
+        <div><strong>Request:</strong> <span id="resp-request">-</span></div>
+        <div><strong>Status:</strong> <span id="resp-status">-</span></div>
+      </div>
+      <div class="inspector-grid">
+        <article>
+          <h3>Headers</h3>
+          <pre id="resp-headers">{}</pre>
+        </article>
+        <article>
+          <h3>Body</h3>
+          <pre id="resp-body">{}</pre>
+        </article>
+      </div>
+      <p class="hint">
+        Tip: to test missing user header behavior, uncheck "Include `X-User-Id`" and call any `/api/*` endpoint.
+      </p>
+    </section>
+  </main>
+
+  <script type="module" src="/ui/app.js"></script>
+</body>
+</html>
