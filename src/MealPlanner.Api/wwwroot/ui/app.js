@@ -7,8 +7,13 @@ const state = {
 };
 
 const UNKNOWN_SOURCE_VALUE = "__unknown__";
+const THEME_STORAGE_KEY = "mealplanner.theme";
+const THEME_LIGHT = "light";
+const THEME_DARK = "dark";
 
 const elements = {
+  themeToggle: document.getElementById("theme-toggle"),
+  themeToggleLabel: document.getElementById("theme-toggle-label"),
   baseUrl: document.getElementById("base-url"),
   userId: document.getElementById("user-id"),
   includeUserId: document.getElementById("include-user-id"),
@@ -71,6 +76,7 @@ const elements = {
 const tabButtons = [elements.tabDefault, elements.tabActual, elements.tabMeals].filter(Boolean);
 const tabPanels = [elements.panelDefault, elements.panelActual, elements.panelMeals].filter(Boolean);
 
+setupThemeToggle();
 elements.baseUrl.value = window.location.origin;
 elements.inventoryDateAdded.valueAsDate = new Date();
 setupTabs();
@@ -307,6 +313,85 @@ function setupEventHandlers() {
     await listUnknownIngredients();
     await listMeals();
   });
+}
+
+function setupThemeToggle() {
+  if (!elements.themeToggle || !elements.themeToggleLabel) {
+    return;
+  }
+
+  const storedTheme = readStoredTheme();
+  const initialTheme = getCurrentTheme() ?? resolveSystemTheme();
+  applyTheme(initialTheme, { persist: false });
+
+  const colorSchemeMedia = window.matchMedia
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : null;
+
+  if (!storedTheme && colorSchemeMedia) {
+    colorSchemeMedia.addEventListener("change", (event) => {
+      if (readStoredTheme()) {
+        return;
+      }
+
+      applyTheme(event.matches ? THEME_DARK : THEME_LIGHT, { persist: false });
+    });
+  }
+
+  elements.themeToggle.addEventListener("click", () => {
+    const nextTheme = getCurrentTheme() === THEME_DARK ? THEME_LIGHT : THEME_DARK;
+    applyTheme(nextTheme, { persist: true });
+  });
+}
+
+function applyTheme(theme, options = {}) {
+  const normalizedTheme = theme === THEME_DARK ? THEME_DARK : THEME_LIGHT;
+  document.documentElement.setAttribute("data-theme", normalizedTheme);
+
+  const isDark = normalizedTheme === THEME_DARK;
+  elements.themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
+  elements.themeToggleLabel.textContent = isDark ? "Switch to light mode" : "Switch to dark mode";
+  elements.themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+
+  if (options.persist) {
+    writeStoredTheme(normalizedTheme);
+  }
+}
+
+function getCurrentTheme() {
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  if (currentTheme === THEME_DARK || currentTheme === THEME_LIGHT) {
+    return currentTheme;
+  }
+
+  return null;
+}
+
+function resolveSystemTheme() {
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? THEME_DARK
+    : THEME_LIGHT;
+}
+
+function readStoredTheme() {
+  try {
+    const theme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (theme === THEME_DARK || theme === THEME_LIGHT) {
+      return theme;
+    }
+  } catch (_) {
+    return null;
+  }
+
+  return null;
+}
+
+function writeStoredTheme(theme) {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch (_) {
+    // Ignore storage failures and keep in-memory theme applied.
+  }
 }
 
 async function listDefaultProducts() {

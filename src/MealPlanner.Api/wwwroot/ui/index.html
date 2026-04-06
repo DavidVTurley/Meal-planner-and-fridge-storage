@@ -4,15 +4,44 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MealPlanner UI Harness</title>
+  <script>
+    (function () {
+      var storageKey = "mealplanner.theme";
+      var storedTheme = null;
+      try {
+        storedTheme = localStorage.getItem(storageKey);
+      } catch (_) {
+        storedTheme = null;
+      }
+
+      var theme = storedTheme;
+      if (theme !== "dark" && theme !== "light") {
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        theme = prefersDark ? "dark" : "light";
+      }
+
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/ui/styles.css?v=20260407-4" />
+  <link rel="stylesheet" href="/ui/styles.css?v=20260407-5" />
 </head>
 <body>
   <main class="app-shell">
     <header class="hero">
-      <p class="kicker">MealPlanner Dev Harness</p>
+      <div class="hero-head">
+        <p class="kicker">MealPlanner Dev Harness</p>
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          type="button"
+          aria-pressed="false"
+          aria-label="Toggle dark mode">
+          <span id="theme-toggle-label">Switch to dark mode</span>
+        </button>
+      </div>
       <h1>Inventory API Test UI</h1>
       <p class="subtitle">
         Exercise default products, inventory operations, and ETag concurrency from one page.
@@ -381,6 +410,6 @@
     </section>
   </main>
 
-  <script type="module" src="/ui/app.js?v=20260407-4"></script>
+  <script type="module" src="/ui/app.js?v=20260407-5"></script>
 </body>
 </html>
