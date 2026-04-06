@@ -1,26 +1,41 @@
 namespace MealPlanner.Domain.Inventory;
 
-public enum MeasurementUnit
+public sealed class MeasurementType
 {
-    Grams,
-    Milliliters,
+    private MeasurementType() { }
+
+    public int Id { get; private set; }
+    public string Code { get; private set; } = string.Empty;
+    public string Name { get; private set; } = string.Empty;
 }
 
-public static class MeasurementUnitExtensions
+public static class MeasurementTypeIds
 {
-    public static string ToApiValue(this MeasurementUnit unit) => unit switch
+    public const int Grams = 1;
+    public const int Milliliters = 2;
+}
+
+public static class MeasurementTypeCodes
+{
+    public const string Grams = "g";
+    public const string Milliliters = "ml";
+}
+
+public static class MeasurementTypeMapper
+{
+    public static string ToApiValue(int measurementTypeId) => measurementTypeId switch
     {
-        MeasurementUnit.Grams => "g",
-        MeasurementUnit.Milliliters => "ml",
-        _ => throw new ArgumentOutOfRangeException(nameof(unit), unit, null),
+        MeasurementTypeIds.Grams => MeasurementTypeCodes.Grams,
+        MeasurementTypeIds.Milliliters => MeasurementTypeCodes.Milliliters,
+        _ => throw new DomainValidationException("Measurement type is not supported."),
     };
 
-    public static MeasurementUnit Parse(string value)
+    public static int ParseId(string value)
     {
         return value.Trim().ToLowerInvariant() switch
         {
-            "g" => MeasurementUnit.Grams,
-            "ml" => MeasurementUnit.Milliliters,
+            MeasurementTypeCodes.Grams => MeasurementTypeIds.Grams,
+            MeasurementTypeCodes.Milliliters => MeasurementTypeIds.Milliliters,
             _ => throw new DomainValidationException("Unit must be 'g' or 'ml'."),
         };
     }

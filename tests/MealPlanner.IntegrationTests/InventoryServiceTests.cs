@@ -67,6 +67,8 @@ public sealed class InventoryServiceTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
             .Options;
 
-        return new MealPlannerDbContext(options);
+        var db = new MealPlannerDbContext(options);
+        db.Database.EnsureCreated();
+        return db;
     }
 }

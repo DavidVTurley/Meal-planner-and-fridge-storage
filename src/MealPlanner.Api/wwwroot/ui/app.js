@@ -159,7 +159,7 @@ elements.inventoryGetForm.addEventListener("submit", async (event) => {
   const result = await requestJson("GET", `/api/inventory-items/${id}`);
   if (result.ok && result.body && result.body.id) {
     captureEtags(result.body, result.headers);
-    setDecrementTarget(result.body.id, toQuotedTag(result.body.etag, result.headers.get("etag")));
+    setDecrementTarget(result.body.id, toQuotedTag(getItemEtag(result.body), result.headers.get("etag")));
   }
 });
 
@@ -182,7 +182,7 @@ elements.decrementForm.addEventListener("submit", async (event) => {
 
   if (result.ok && result.body && result.body.id) {
     captureEtags(result.body, result.headers);
-    setDecrementTarget(result.body.id, toQuotedTag(result.body.etag, result.headers.get("etag")));
+    setDecrementTarget(result.body.id, toQuotedTag(getItemEtag(result.body), result.headers.get("etag")));
     await listInventoryItems();
   }
 });
@@ -290,7 +290,7 @@ function renderInventoryTable() {
   elements.inventoryTableBody.innerHTML = "";
 
   state.inventoryItems.forEach((item) => {
-    const etag = toQuotedTag(item.etag, state.etagsByItemId.get(item.id));
+    const etag = toQuotedTag(getItemEtag(item), state.etagsByItemId.get(item.id));
     const row = document.createElement("tr");
     row.innerHTML = `
       <td class="mono">${item.id}</td>
@@ -325,15 +325,16 @@ function captureEtags(body, headers) {
 
   if (Array.isArray(body)) {
     body.forEach((item) => {
-      if (item && item.id && item.etag) {
-        state.etagsByItemId.set(item.id, quote(item.etag));
+      const itemEtag = getItemEtag(item);
+      if (item && item.id && itemEtag) {
+        state.etagsByItemId.set(item.id, quote(itemEtag));
       }
     });
     return;
   }
 
   if (body && body.id) {
-    const quoted = toQuotedTag(body.etag, fromHeader);
+    const quoted = toQuotedTag(getItemEtag(body), fromHeader);
     if (quoted) {
       state.etagsByItemId.set(body.id, quoted);
     }
@@ -432,6 +433,10 @@ function quote(tag) {
   }
 
   return `"${trimmed}"`;
+}
+
+function getItemEtag(item) {
+  return item?.etag ?? item?.eTag ?? "";
 }
 
 function toIsoDate(date) {

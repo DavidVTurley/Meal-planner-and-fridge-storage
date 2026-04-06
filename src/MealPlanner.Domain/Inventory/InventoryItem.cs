@@ -9,7 +9,7 @@ public sealed class InventoryItem
     public string IngredientName { get; private set; } = string.Empty;
     public decimal RemainingAmountMetric { get; private set; }
     public decimal SnapshotAmountPerPackage { get; private set; }
-    public MeasurementUnit SnapshotUnit { get; private set; }
+    public int SnapshotMeasurementTypeId { get; private set; }
     public string LocationCanonical { get; private set; } = string.Empty;
     public string LocationDisplay { get; private set; } = string.Empty;
     public DateOnly DateAdded { get; private set; }
@@ -24,13 +24,13 @@ public sealed class InventoryItem
         string ingredientName,
         decimal remainingAmountMetric,
         decimal snapshotAmountPerPackage,
-        MeasurementUnit snapshotUnit,
+        int snapshotMeasurementTypeId,
         string locationDisplay,
         DateOnly dateAdded,
         DateOnly sellByDate,
         Guid defaultProductId)
     {
-        Validate(userId, ingredientName, remainingAmountMetric, snapshotAmountPerPackage, defaultProductId);
+        Validate(userId, ingredientName, remainingAmountMetric, snapshotAmountPerPackage, defaultProductId, snapshotMeasurementTypeId);
 
         var now = DateTimeOffset.UtcNow;
 
@@ -41,7 +41,7 @@ public sealed class InventoryItem
             IngredientName = ingredientName.Trim(),
             RemainingAmountMetric = remainingAmountMetric,
             SnapshotAmountPerPackage = snapshotAmountPerPackage,
-            SnapshotUnit = snapshotUnit,
+            SnapshotMeasurementTypeId = snapshotMeasurementTypeId,
             LocationDisplay = locationDisplay.Trim(),
             LocationCanonical = LocationNormalizer.ToCanonical(locationDisplay),
             DateAdded = dateAdded,
@@ -85,7 +85,7 @@ public sealed class InventoryItem
         return FreshnessStatus.Normal;
     }
 
-    private static void Validate(string userId, string ingredientName, decimal remainingAmountMetric, decimal snapshotAmountPerPackage, Guid defaultProductId)
+    private static void Validate(string userId, string ingredientName, decimal remainingAmountMetric, decimal snapshotAmountPerPackage, Guid defaultProductId, int snapshotMeasurementTypeId)
     {
         if (string.IsNullOrWhiteSpace(userId))
         {
@@ -111,5 +111,7 @@ public sealed class InventoryItem
         {
             throw new DomainValidationException("DefaultProductId is required.");
         }
+
+        _ = MeasurementTypeMapper.ToApiValue(snapshotMeasurementTypeId);
     }
 }

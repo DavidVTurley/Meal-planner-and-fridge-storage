@@ -9,16 +9,16 @@ public sealed class DefaultProduct
     public string Name { get; private set; } = string.Empty;
     public int DefaultShelfLifeDays { get; private set; }
     public decimal AmountPerPackage { get; private set; }
-    public MeasurementUnit Unit { get; private set; }
+    public int MeasurementTypeId { get; private set; }
     public int Version { get; private set; }
     public Guid? PreviousVersionId { get; private set; }
     public bool IsCurrent { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public DateTimeOffset UpdatedAtUtc { get; private set; }
 
-    public static DefaultProduct Create(string userId, string name, int defaultShelfLifeDays, decimal amountPerPackage, MeasurementUnit unit)
+    public static DefaultProduct Create(string userId, string name, int defaultShelfLifeDays, decimal amountPerPackage, int measurementTypeId)
     {
-        Validate(userId, name, defaultShelfLifeDays, amountPerPackage);
+        Validate(userId, name, defaultShelfLifeDays, amountPerPackage, measurementTypeId);
 
         var now = DateTimeOffset.UtcNow;
 
@@ -29,7 +29,7 @@ public sealed class DefaultProduct
             Name = name.Trim(),
             DefaultShelfLifeDays = defaultShelfLifeDays,
             AmountPerPackage = amountPerPackage,
-            Unit = unit,
+            MeasurementTypeId = measurementTypeId,
             Version = 1,
             PreviousVersionId = null,
             IsCurrent = true,
@@ -38,9 +38,9 @@ public sealed class DefaultProduct
         };
     }
 
-    public DefaultProduct CreateNextVersion(string name, int defaultShelfLifeDays, decimal amountPerPackage, MeasurementUnit unit)
+    public DefaultProduct CreateNextVersion(string name, int defaultShelfLifeDays, decimal amountPerPackage, int measurementTypeId)
     {
-        Validate(UserId, name, defaultShelfLifeDays, amountPerPackage);
+        Validate(UserId, name, defaultShelfLifeDays, amountPerPackage, measurementTypeId);
 
         IsCurrent = false;
         UpdatedAtUtc = DateTimeOffset.UtcNow;
@@ -54,7 +54,7 @@ public sealed class DefaultProduct
             Name = name.Trim(),
             DefaultShelfLifeDays = defaultShelfLifeDays,
             AmountPerPackage = amountPerPackage,
-            Unit = unit,
+            MeasurementTypeId = measurementTypeId,
             Version = Version + 1,
             PreviousVersionId = Id,
             IsCurrent = true,
@@ -63,7 +63,7 @@ public sealed class DefaultProduct
         };
     }
 
-    private static void Validate(string userId, string name, int defaultShelfLifeDays, decimal amountPerPackage)
+    private static void Validate(string userId, string name, int defaultShelfLifeDays, decimal amountPerPackage, int measurementTypeId)
     {
         if (string.IsNullOrWhiteSpace(userId))
         {
@@ -84,5 +84,7 @@ public sealed class DefaultProduct
         {
             throw new DomainValidationException("AmountPerPackage must be greater than 0.");
         }
+
+        _ = MeasurementTypeMapper.ToApiValue(measurementTypeId);
     }
 }

@@ -1,5 +1,6 @@
 using System.Net;
 using MealPlanner.Application.Inventory;
+using MealPlanner.Application.Meals;
 using MealPlanner.Domain.Inventory;
 using MealPlanner.Infrastructure;
 using Microsoft.OpenApi;
@@ -177,6 +178,89 @@ app.MapGet("/api/inventory/default-inference", (string ingredientName, Inventory
 })
     .WithSummary("Get default ingredient inference")
     .WithDescription("Returns inferred unit and amount defaults for a free-text ingredient name.");
+
+app.MapPost("/api/meals", async (
+    HttpContext httpContext,
+    CreateMealRequest request,
+    MealService service,
+    CancellationToken cancellationToken) =>
+{
+    var userId = RequireUserId(httpContext);
+    var created = await service.CreateAsync(userId, request, cancellationToken);
+    return Results.Created($"/api/meals/{created.Id}", created);
+})
+    .WithSummary("Create meal definition")
+    .WithDescription("Creates a meal definition with measurement-based ingredient lines.")
+    .RequireUserIdHeader();
+
+app.MapPatch("/api/meals/{id:guid}", async (
+    HttpContext httpContext,
+    Guid id,
+    UpdateMealRequest request,
+    MealService service,
+    CancellationToken cancellationToken) =>
+{
+    var userId = RequireUserId(httpContext);
+    var updated = await service.UpdateAsync(userId, id, request, cancellationToken);
+    return Results.Ok(updated);
+})
+    .WithSummary("Update meal definition")
+    .WithDescription("Replaces meal ingredient lines and updates the meal name.")
+    .RequireUserIdHeader();
+
+app.MapGet("/api/meals", async (
+    HttpContext httpContext,
+    MealService service,
+    CancellationToken cancellationToken) =>
+{
+    var userId = RequireUserId(httpContext);
+    var meals = await service.ListAsync(userId, cancellationToken);
+    return Results.Ok(meals);
+})
+    .WithSummary("List meal definitions")
+    .WithDescription("Returns all meal definitions for the current user.")
+    .RequireUserIdHeader();
+
+app.MapGet("/api/meals/{id:guid}", async (
+    HttpContext httpContext,
+    Guid id,
+    MealService service,
+    CancellationToken cancellationToken) =>
+{
+    var userId = RequireUserId(httpContext);
+    var meal = await service.GetByIdAsync(userId, id, cancellationToken);
+    return Results.Ok(meal);
+})
+    .WithSummary("Get meal definition")
+    .WithDescription("Returns one meal definition including ingredient lines.")
+    .RequireUserIdHeader();
+
+app.MapGet("/api/unknown-ingredients", async (
+    HttpContext httpContext,
+    MealService service,
+    CancellationToken cancellationToken) =>
+{
+    var userId = RequireUserId(httpContext);
+    var unknowns = await service.ListUnknownIngredientsAsync(userId, cancellationToken);
+    return Results.Ok(unknowns);
+})
+    .WithSummary("List unknown ingredients")
+    .WithDescription("Lists active unknown ingredients and where they are used in meals.")
+    .RequireUserIdHeader();
+
+app.MapPost("/api/unknown-ingredients/convert", async (
+    HttpContext httpContext,
+    ConvertUnknownIngredientRequest request,
+    MealService service,
+    CancellationToken cancellationToken) =>
+{
+    var userId = RequireUserId(httpContext);
+    await service.ConvertUnknownIngredientAsync(userId, request, cancellationToken);
+    return Results.NoContent();
+})
+    .WithSummary("Convert unknown ingredient")
+    .WithDescription("Converts an unknown ingredient to a known default product and relinks meal lines.")
+    .RequireUserIdHeader();
 
 app.Run();
 

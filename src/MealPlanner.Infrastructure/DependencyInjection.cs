@@ -1,5 +1,6 @@
 using MealPlanner.Application.Abstractions;
 using MealPlanner.Application.Inventory;
+using MealPlanner.Application.Meals;
 using MealPlanner.Infrastructure.Persistence;
 using MealPlanner.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -19,8 +20,11 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<MealPlannerDbContext>());
         services.AddScoped<IDefaultProductRepository, DefaultProductRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
+        services.AddScoped<IMealDefinitionRepository, MealDefinitionRepository>();
+        services.AddScoped<IUnknownIngredientRepository, UnknownIngredientRepository>();
         services.AddScoped<DefaultProductService>();
         services.AddScoped<InventoryService>();
+        services.AddScoped<MealService>();
 
         return services;
     }

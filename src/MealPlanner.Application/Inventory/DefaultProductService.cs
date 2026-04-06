@@ -28,8 +28,8 @@ public sealed class DefaultProductService
 
     public async Task<DefaultProductDto> CreateAsync(string userId, CreateDefaultProductRequest request, CancellationToken cancellationToken)
     {
-        var unit = MeasurementUnitExtensions.Parse(request.Unit);
-        var created = DefaultProduct.Create(userId, request.Name, request.DefaultShelfLifeDays, request.AmountPerPackage, unit);
+        var measurementTypeId = MeasurementTypeMapper.ParseId(request.Unit);
+        var created = DefaultProduct.Create(userId, request.Name, request.DefaultShelfLifeDays, request.AmountPerPackage, measurementTypeId);
 
         await _defaultProducts.AddAsync(created, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -47,8 +47,8 @@ public sealed class DefaultProductService
             throw new DomainValidationException("Only current default products can be edited.");
         }
 
-        var unit = MeasurementUnitExtensions.Parse(request.Unit);
-        var next = existing.CreateNextVersion(request.Name, request.DefaultShelfLifeDays, request.AmountPerPackage, unit);
+        var measurementTypeId = MeasurementTypeMapper.ParseId(request.Unit);
+        var next = existing.CreateNextVersion(request.Name, request.DefaultShelfLifeDays, request.AmountPerPackage, measurementTypeId);
 
         await _defaultProducts.AddAsync(next, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -69,7 +69,7 @@ public sealed class DefaultProductService
             product.Name,
             product.DefaultShelfLifeDays,
             product.AmountPerPackage,
-            product.Unit.ToApiValue(),
+            MeasurementTypeMapper.ToApiValue(product.MeasurementTypeId),
             product.Version,
             product.IsCurrent,
             product.PreviousVersionId);
