@@ -6,6 +6,8 @@ const state = {
   etagsByItemId: new Map(),
 };
 
+const UNKNOWN_SOURCE_VALUE = "__unknown__";
+
 const elements = {
   baseUrl: document.getElementById("base-url"),
   userId: document.getElementById("user-id"),
@@ -535,26 +537,16 @@ function appendIngredientLine(container, mode, initialValue = null) {
   row.className = "ingredient-line";
 
   row.innerHTML = `
-    <label>
-      Kind
-      <select class="line-kind">
-        <option value="known">known</option>
-        <option value="unknown">unknown</option>
-      </select>
+    <label class="line-source-field">
+      Source
+      <div class="combobox line-source-combo">
+        <input class="combobox-input line-source-input" type="text" placeholder="Search source..." autocomplete="off" />
+        <div class="combobox-list" hidden></div>
+      </div>
     </label>
-    <label>
+    <label class="line-amount-field">
       Amount
       <input class="line-amount" type="number" min="0.001" step="0.001" value="100" />
-    </label>
-    <label class="line-known-field">
-      Default Product
-      <select class="line-default-id"></select>
-    </label>
-    <label class="line-unknown-id-field">
-      Existing Unknown (optional)
-      <select class="line-unknown-id">
-        <option value="">Create/Use by name</option>
-      </select>
     </label>
     <label class="line-unknown-name-field">
       Unknown Display Name
@@ -575,50 +567,42 @@ function appendIngredientLine(container, mode, initialValue = null) {
 
   container.appendChild(row);
 
-  const kindSelect = row.querySelector(".line-kind");
+  const sourceCombo = createCombobox(row.querySelector(".line-source-combo"), {
+    emptyText: "No sources match",
+  });
+
+  row._sourceCombo = sourceCombo;
+
   const amountInput = row.querySelector(".line-amount");
-  const defaultSelect = row.querySelector(".line-default-id");
-  const unknownIdSelect = row.querySelector(".line-unknown-id");
   const unknownNameInput = row.querySelector(".line-unknown-display-name");
   const unknownUnitSelect = row.querySelector(".line-unknown-unit");
   const removeButton = row.querySelector(".line-remove-btn");
 
-  populateDefaultProductOptions(defaultSelect);
-  populateUnknownOptions(unknownIdSelect);
+  populateLineSourceOptions(sourceCombo);
+
+  const initialAmount = initialValue?.amount ?? 100;
+  amountInput.value = String(initialAmount);
 
   if (initialValue) {
-    kindSelect.value = initialValue.ingredientKind ?? "known";
-    amountInput.value = String(initialValue.amount ?? 100);
-
     if (initialValue.defaultProductId) {
-      defaultSelect.value = initialValue.defaultProductId;
+      sourceCombo.setValue(toKnownSourceValue(initialValue.defaultProductId), { notify: false });
     }
 
-    if (initialValue.unknownIngredientId) {
-      unknownIdSelect.value = initialValue.unknownIngredientId;
+    if (initialValue.ingredientKind === "unknown") {
+      sourceCombo.setValue(UNKNOWN_SOURCE_VALUE, { notify: false });
     }
 
-    if (initialValue.unknownDisplayName) {
+    if (initialValue.ingredientKind === "unknown" && initialValue.unknownDisplayName) {
       unknownNameInput.value = initialValue.unknownDisplayName;
     }
 
-    if (initialValue.unknownUnit) {
+    if (initialValue.ingredientKind === "unknown" && initialValue.unknownUnit) {
       unknownUnitSelect.value = initialValue.unknownUnit;
     }
   }
 
-  kindSelect.addEventListener("change", () => {
-    toggleIngredientLineKind(row, kindSelect.value);
-  });
-
-  unknownIdSelect.addEventListener("change", () => {
-    const selected = state.unknownIngredients.find((item) => item.id === unknownIdSelect.value);
-    if (!selected) {
-      return;
-    }
-
-    unknownNameInput.value = selected.displayName;
-    unknownUnitSelect.value = selected.unit;
+  sourceCombo.onChange(() => {
+    applyIngredientLineMode(row, { resetKnownAmount: true });
   });
 
   removeButton.addEventListener("click", () => {
@@ -626,20 +610,37 @@ function appendIngredientLine(container, mode, initialValue = null) {
     ensureAtLeastOneIngredientLine(container, mode);
   });
 
-  toggleIngredientLineKind(row, kindSelect.value);
+  applyIngredientLineMode(row, {
+    resetKnownAmount: !initialValue || initialValue.ingredientKind !== "known",
+  });
 }
 
-function toggleIngredientLineKind(row, kind) {
-  const knownField = row.querySelector(".line-known-field");
-  const unknownIdField = row.querySelector(".line-unknown-id-field");
+function applyIngredientLineMode(row, options = {}) {
+  const sourceCombo = row._sourceCombo;
+  const sourceValue = sourceCombo?.getValue() ?? UNKNOWN_SOURCE_VALUE;
+  const amountInput = row.querySelector(".line-amount");
+  const unknownNameInput = row.querySelector(".line-unknown-display-name");
+  const unknownUnitSelect = row.querySelector(".line-unknown-unit");
   const unknownNameField = row.querySelector(".line-unknown-name-field");
   const unknownUnitField = row.querySelector(".line-unknown-unit-field");
 
-  const isKnown = kind === "known";
-  knownField.hidden = !isKnown;
-  unknownIdField.hidden = isKnown;
+  const selectedProduct = getDefaultProductFromSource(sourceValue);
+  const isKnown = selectedProduct !== null;
+
+  row.classList.toggle("line-mode-known", isKnown);
+  row.classList.toggle("line-mode-unknown", !isKnown);
   unknownNameField.hidden = isKnown;
   unknownUnitField.hidden = isKnown;
+
+  if (isKnown && selectedProduct) {
+    if (options.resetKnownAmount) {
+      amountInput.value = String(selectedProduct.amountPerPackage);
+    }
+
+    unknownNameInput.value = "";
+    unknownUnitSelect.value = "g";
+    return;
+  }
 }
 
 function collectIngredientLinesPayload(container) {
@@ -649,13 +650,14 @@ function collectIngredientLinesPayload(container) {
   }
 
   return rows.map((row) => {
-    const ingredientKind = row.querySelector(".line-kind").value;
+    const sourceValue = row._sourceCombo?.getValue() ?? UNKNOWN_SOURCE_VALUE;
     const amount = toNumber(row.querySelector(".line-amount").value);
+    const selectedProduct = getDefaultProductFromSource(sourceValue);
 
-    if (ingredientKind === "known") {
+    if (selectedProduct) {
       return {
         ingredientKind: "known",
-        defaultProductId: row.querySelector(".line-default-id").value || null,
+        defaultProductId: selectedProduct.id,
         unknownIngredientId: null,
         unknownDisplayName: null,
         unknownUnit: null,
@@ -663,68 +665,207 @@ function collectIngredientLinesPayload(container) {
       };
     }
 
-    const unknownIngredientId = row.querySelector(".line-unknown-id").value || null;
     const payload = {
       ingredientKind: "unknown",
       defaultProductId: null,
-      unknownIngredientId,
+      unknownIngredientId: null,
       unknownDisplayName: null,
       unknownUnit: null,
       amount,
     };
 
-    if (!unknownIngredientId) {
-      payload.unknownDisplayName = row.querySelector(".line-unknown-display-name").value.trim() || null;
-      payload.unknownUnit = row.querySelector(".line-unknown-unit").value || null;
-    }
+    payload.unknownDisplayName = row.querySelector(".line-unknown-display-name").value.trim() || null;
+    payload.unknownUnit = row.querySelector(".line-unknown-unit").value || null;
 
     return payload;
   });
 }
 
-function populateDefaultProductOptions(selectElement) {
-  selectElement.innerHTML = "";
-  state.defaultProducts.forEach((product) => {
-    const option = document.createElement("option");
-    option.value = product.id;
-    option.textContent = `${product.name} (${product.unit})`;
-    selectElement.appendChild(option);
-  });
-}
-
-function populateUnknownOptions(selectElement) {
-  const previous = selectElement.value;
-  selectElement.innerHTML = "";
-
-  const blank = document.createElement("option");
-  blank.value = "";
-  blank.textContent = "Create/Use by name";
-  selectElement.appendChild(blank);
-
-  state.unknownIngredients.forEach((unknown) => {
-    const option = document.createElement("option");
-    option.value = unknown.id;
-    option.textContent = `${unknown.displayName} (${unknown.unit})`;
-    selectElement.appendChild(option);
-  });
-
-  if (previous) {
-    selectElement.value = previous;
+function populateLineSourceOptions(sourceCombo) {
+  const options = [
+    { value: UNKNOWN_SOURCE_VALUE, label: "Unknown ingredient" },
+    ...state.defaultProducts.map((product) => ({
+      value: toKnownSourceValue(product.id),
+      label: `${product.name} (${product.unit})`,
+    })),
+  ];
+  sourceCombo.setOptions(options);
+  if (!sourceCombo.getValue()) {
+    sourceCombo.setValue(UNKNOWN_SOURCE_VALUE, { notify: false });
   }
 }
 
 function refreshIngredientLineOptions() {
-  document.querySelectorAll(".line-default-id").forEach((element) => {
-    const previous = element.value;
-    populateDefaultProductOptions(element);
-    if (previous) {
-      element.value = previous;
+  document.querySelectorAll(".ingredient-line").forEach((row) => {
+    if (!row._sourceCombo) {
+      return;
+    }
+
+    const previousSource = row._sourceCombo.getValue();
+
+    populateLineSourceOptions(row._sourceCombo);
+
+    row._sourceCombo.setValue(previousSource, { notify: false });
+    applyIngredientLineMode(row, { resetKnownAmount: false });
+  });
+}
+
+function toKnownSourceValue(id) {
+  return `known:${id}`;
+}
+
+function getDefaultProductFromSource(sourceValue) {
+  if (!sourceValue || sourceValue === UNKNOWN_SOURCE_VALUE || !sourceValue.startsWith("known:")) {
+    return null;
+  }
+
+  const id = sourceValue.slice("known:".length);
+  return state.defaultProducts.find((item) => item.id === id) ?? null;
+}
+
+function createCombobox(container, options = {}) {
+  const input = container.querySelector(".combobox-input");
+  const list = container.querySelector(".combobox-list");
+  const emptyText = options.emptyText ?? "No matches";
+  const handlers = [];
+
+  let items = [];
+  let selectedValue = "";
+  let selectedLabel = "";
+  let isOpen = false;
+
+  const normalize = (value) => value.trim().toLowerCase();
+
+  const findByValue = (value) => items.find((item) => item.value === value) ?? null;
+  const findVisibleMatches = (filterText) => {
+    const query = normalize(filterText);
+    return items.filter((item) => !query || normalize(item.label).includes(query));
+  };
+
+  const render = (filterText = "") => {
+    const visible = findVisibleMatches(filterText);
+
+    list.innerHTML = "";
+    if (visible.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "combobox-empty";
+      empty.textContent = emptyText;
+      list.appendChild(empty);
+      return;
+    }
+
+    visible.forEach((item) => {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.className = "combobox-option";
+      option.textContent = item.label;
+      option.dataset.value = item.value;
+      option.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        api.setValue(item.value);
+        close();
+      });
+      list.appendChild(option);
+    });
+  };
+
+  const open = () => {
+    isOpen = true;
+    container.classList.add("open");
+    list.hidden = false;
+    render(input.value === selectedLabel ? "" : input.value);
+  };
+
+  const close = () => {
+    isOpen = false;
+    container.classList.remove("open");
+    list.hidden = true;
+    if (selectedLabel) {
+      input.value = selectedLabel;
+    }
+  };
+
+  const notify = () => {
+    const selected = findByValue(selectedValue);
+    handlers.forEach((handler) => handler(selectedValue, selected));
+  };
+
+  const api = {
+    setOptions(nextItems) {
+      items = Array.isArray(nextItems) ? nextItems : [];
+      const selected = findByValue(selectedValue);
+      if (!selected && items.length > 0) {
+        selectedValue = items[0].value;
+        selectedLabel = items[0].label;
+        input.value = selectedLabel;
+      } else if (selected) {
+        selectedLabel = selected.label;
+        input.value = selectedLabel;
+      }
+
+      if (isOpen) {
+        render(input.value);
+      }
+    },
+    setValue(value, setOptions = {}) {
+      const selected = findByValue(value);
+      if (!selected) {
+        return;
+      }
+
+      const previous = selectedValue;
+      selectedValue = selected.value;
+      selectedLabel = selected.label;
+      input.value = selected.label;
+
+      if (setOptions.notify !== false && previous !== selectedValue) {
+        notify();
+      }
+    },
+    getValue() {
+      return selectedValue;
+    },
+    onChange(handler) {
+      handlers.push(handler);
+    },
+  };
+
+  input.addEventListener("focus", open);
+  input.addEventListener("input", () => {
+    if (!isOpen) {
+      open();
+    }
+
+    render(input.value);
+    const matches = findVisibleMatches(input.value);
+    if (matches.length === 1) {
+      api.setValue(matches[0].value);
+      close();
     }
   });
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close();
+      return;
+    }
 
-  document.querySelectorAll(".line-unknown-id").forEach((element) => {
-    populateUnknownOptions(element);
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const matches = findVisibleMatches(input.value);
+      if (matches.length === 1) {
+        api.setValue(matches[0].value);
+      }
+      close();
+    }
   });
+  input.addEventListener("blur", () => {
+    window.setTimeout(() => {
+      close();
+    }, 80);
+  });
+
+  return api;
 }
 
 function syncInventoryIngredientToSelectedDefault() {
