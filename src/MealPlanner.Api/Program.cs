@@ -2,7 +2,7 @@ using System.Net;
 using MealPlanner.Application.Inventory;
 using MealPlanner.Domain.Inventory;
 using MealPlanner.Infrastructure;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,19 +22,13 @@ builder.Services.AddOpenApi("v1", options =>
         return Task.CompletedTask;
     });
 });
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi("/openapi/{documentName}.json");
-    app.UseSwaggerUI(options =>
-    {
-        options.RoutePrefix = "openapi";
-        options.SwaggerEndpoint("/openapi/v1.json", "MealPlanner API v1");
-        options.DocumentTitle = "MealPlanner API Docs";
-    });
+    app.MapGet("/openapi", () => Results.Content(OpenApiEndpointExtensions.SwaggerUiHtml, "text/html"));
 }
 
 app.UseExceptionHandler(exceptionApp =>
@@ -192,14 +186,42 @@ static string QuoteTag(string etag) => $"\"{etag}\"";
 
 internal static class OpenApiEndpointExtensions
 {
+    public const string SwaggerUiHtml = """
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MealPlanner API Docs</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #f7f7f7; }
+    #swagger-ui { max-width: 1200px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    window.ui = SwaggerUIBundle({
+      url: '/openapi/v1.json',
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      persistAuthorization: true
+    });
+  </script>
+</body>
+</html>
+""";
+
     public static RouteHandlerBuilder RequireUserIdHeader(this RouteHandlerBuilder builder)
     {
-        return builder.WithOpenApi(operation =>
+        return builder.AddOpenApiOperationTransformer((operation, _, _) =>
         {
             operation.Parameters ??= [];
             if (operation.Parameters.Any(parameter => parameter.Name == "X-User-Id" && parameter.In == ParameterLocation.Header))
             {
-                return operation;
+                return Task.CompletedTask;
             }
 
             operation.Parameters.Add(new OpenApiParameter
@@ -208,21 +230,21 @@ internal static class OpenApiEndpointExtensions
                 In = ParameterLocation.Header,
                 Required = true,
                 Description = "Required user identifier used for scoping all /api resources.",
-                Schema = new OpenApiSchema { Type = "string" },
+                Schema = new OpenApiSchema { Type = JsonSchemaType.String },
             });
 
-            return operation;
+            return Task.CompletedTask;
         });
     }
 
     public static RouteHandlerBuilder RequireIfMatchHeader(this RouteHandlerBuilder builder, string description)
     {
-        return builder.WithOpenApi(operation =>
+        return builder.AddOpenApiOperationTransformer((operation, _, _) =>
         {
             operation.Parameters ??= [];
             if (operation.Parameters.Any(parameter => parameter.Name == "If-Match" && parameter.In == ParameterLocation.Header))
             {
-                return operation;
+                return Task.CompletedTask;
             }
 
             operation.Parameters.Add(new OpenApiParameter
@@ -231,10 +253,10 @@ internal static class OpenApiEndpointExtensions
                 In = ParameterLocation.Header,
                 Required = true,
                 Description = description,
-                Schema = new OpenApiSchema { Type = "string" },
+                Schema = new OpenApiSchema { Type = JsonSchemaType.String },
             });
 
-            return operation;
+            return Task.CompletedTask;
         });
     }
 }
