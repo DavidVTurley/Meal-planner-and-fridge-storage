@@ -142,6 +142,10 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.row-3 {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
 .row-4 {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
@@ -193,6 +197,11 @@ label {
   gap: 0.35rem;
   font-size: 0.9rem;
   color: var(--text-soft);
+}
+
+.field-hint {
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--text-soft) 78%, #ffffff);
 }
 
 input,

@@ -27,6 +27,8 @@ const elements = {
 
   inventoryCreateForm: document.getElementById("inventory-create-form"),
   inventoryName: document.getElementById("inventory-name"),
+  inventoryRemaining: document.getElementById("inventory-remaining"),
+  inventoryRemainingUnitHint: document.getElementById("inventory-remaining-unit-hint"),
   inventoryDefaultId: document.getElementById("inventory-default-id"),
   inventoryDateAdded: document.getElementById("inventory-date-added"),
   inventorySellBy: document.getElementById("inventory-sell-by"),
@@ -402,9 +404,14 @@ function renderInventoryTable() {
 
   state.inventoryItems.forEach((item) => {
     const etag = toQuotedTag(getItemEtag(item), state.etagsByItemId.get(item.id));
+    const defaultProduct = state.defaultProducts.find((product) => product.id === item.defaultProductId);
+    const defaultProductDisplay = defaultProduct
+      ? `${defaultProduct.name} (${defaultProduct.unit})`
+      : `Unknown (${item.defaultProductId})`;
     const row = document.createElement("tr");
     row.innerHTML = `
       <td class="mono">${item.id}</td>
+      <td>${defaultProductDisplay}</td>
       <td>${item.ingredientName}</td>
       <td>${item.remainingAmountMetric}</td>
       <td>${item.locationDisplay}</td>
@@ -723,15 +730,19 @@ function refreshIngredientLineOptions() {
 function syncInventoryIngredientToSelectedDefault() {
   const selectedId = elements.inventoryDefaultId.value;
   if (!selectedId) {
+    elements.inventoryRemainingUnitHint.textContent = "(unit: -)";
     return;
   }
 
   const selected = state.defaultProducts.find((item) => item.id === selectedId);
   if (!selected) {
+    elements.inventoryRemainingUnitHint.textContent = "(unit: -)";
     return;
   }
 
   elements.inventoryName.value = selected.name;
+  elements.inventoryRemaining.value = String(selected.amountPerPackage);
+  elements.inventoryRemainingUnitHint.textContent = `(unit: ${selected.unit})`;
 }
 
 function syncSellByFromDateAddedAndShelfLife() {
