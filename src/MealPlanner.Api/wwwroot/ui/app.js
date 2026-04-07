@@ -634,11 +634,11 @@ function appendIngredientLine(container, mode, initialValue = null) {
       <input class="line-amount" type="number" min="0.001" step="0.001" value="100" />
     </label>
     <label class="line-unknown-name-field">
-      Unknown Display Name
-      <input class="line-unknown-display-name" type="text" placeholder="Homemade Stock" />
+      Display Name
+      <input class="line-unknown-display-name" type="text" placeholder="display name" />
     </label>
     <label class="line-unknown-unit-field">
-      Unknown Unit
+      Unit
       <select class="line-unknown-unit">
         <option value="g">g</option>
         <option value="ml">ml</option>
