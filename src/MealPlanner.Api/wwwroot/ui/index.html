@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/ui/styles.css?v=20260407-5" />
+  <link rel="stylesheet" href="/ui/styles.css?v=20260407-6" />
 </head>
 <body>
   <main class="app-shell">
@@ -137,6 +137,10 @@
             <option value="piece">piece</option>
           </select>
         </label>
+        <label>
+          Default Location (optional)
+          <input id="default-location" type="text" placeholder="Fridge" />
+        </label>
         <button type="submit">Create Default Product</button>
       </form>
 
@@ -168,6 +172,10 @@
               <option value="piece">piece</option>
             </select>
           </label>
+          <label>
+            Default Location (optional)
+            <input id="default-update-location" type="text" placeholder="Fridge" />
+          </label>
           <button class="action-btn" type="submit">Create Next Version</button>
         </div>
       </form>
@@ -181,6 +189,7 @@
               <th>Shelf-Life</th>
               <th>Amount</th>
               <th>Unit</th>
+              <th>Default Location</th>
               <th>Version</th>
               <th>Current</th>
             </tr>
@@ -219,7 +228,10 @@
         <div class="form-row row-4">
           <label>
             Location
-            <input id="inventory-location" type="text" required placeholder="Fridge" />
+            <div id="inventory-location-combo" class="combobox">
+              <input id="inventory-location" class="combobox-input" type="text" required placeholder="Select Location" autocomplete="off" />
+              <div class="combobox-list" hidden></div>
+            </div>
           </label>
           <label>
             Date Added
@@ -260,7 +272,7 @@
         </label>
         <label>
           Amount to Decrement
-          <input id="decrement-amount" type="number" min="0.001" step="0.001" required value="100" />
+          <input id="decrement-amount" type="number" min="0.001" step="0.001" required />
         </label>
         <label>
           If-Match (quoted ETag)
@@ -326,7 +338,7 @@
         <h3>Update Meal</h3>
         <div class="form-row row-2">
           <label>
-            Meal To Update
+            Meal
             <select id="meal-update-id" required></select>
           </label>
           <label>
@@ -410,6 +422,6 @@
     </section>
   </main>
 
-  <script type="module" src="/ui/app.js?v=20260407-5"></script>
+  <script type="module" src="/ui/app.js?v=20260407-6"></script>
 </body>
 </html>

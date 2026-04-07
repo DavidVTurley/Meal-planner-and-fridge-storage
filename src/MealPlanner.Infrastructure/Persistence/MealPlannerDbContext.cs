@@ -39,6 +39,8 @@ public sealed class MealPlannerDbContext(DbContextOptions<MealPlannerDbContext> 
             builder.Property(x => x.DefaultShelfLifeDays).IsRequired();
             builder.Property(x => x.AmountPerPackage).HasPrecision(18, 3).IsRequired();
             builder.Property(x => x.MeasurementTypeId).IsRequired();
+            builder.Property(x => x.DefaultLocationCanonical).HasMaxLength(128).IsRequired(false);
+            builder.Property(x => x.DefaultLocationDisplay).HasMaxLength(128).IsRequired(false);
             builder.Property(x => x.Version).IsRequired();
             builder.Property(x => x.IsCurrent).IsRequired();
             builder.Property(x => x.CreatedAtUtc).IsRequired();

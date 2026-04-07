@@ -93,4 +93,47 @@ public sealed class InventoryServiceTests
         Assert.Equal("piece", createdItem.SnapshotUnit);
         Assert.Equal(49.5m, createdItem.RemainingAmountMetric);
     }
+
+    [Fact]
+    public async Task DefaultProduct_DefaultLocation_RoundTrips()
+    {
+        await using var db = CreateDb();
+        var defaultService = new DefaultProductService(new DefaultProductRepository(db), db);
+
+        var created = await defaultService.CreateAsync(
+            "user-1",
+            new CreateDefaultProductRequest("Yogurt", 7, 1000, "g", "Fridge Door"),
+            CancellationToken.None);
+
+        Assert.Equal("Fridge Door", created.DefaultLocation);
+
+        var listed = await defaultService.ListCurrentAsync("user-1", CancellationToken.None);
+        Assert.Equal("Fridge Door", Assert.Single(listed).DefaultLocation);
+    }
+
+    [Fact]
+    public async Task DefaultProduct_UpdateVersion_ChangesDefaultLocation()
+    {
+        await using var db = CreateDb();
+        var defaultService = new DefaultProductService(new DefaultProductRepository(db), db);
+
+        var created = await defaultService.CreateAsync(
+            "user-1",
+            new CreateDefaultProductRequest("Cheese", 14, 500, "g", "Fridge"),
+            CancellationToken.None);
+
+        var updated = await defaultService.CreateNextVersionAsync(
+            "user-1",
+            created.Id,
+            new UpdateDefaultProductRequest("Cheese", 14, 500, "g", "Top Shelf"),
+            CancellationToken.None);
+
+        Assert.Equal("Top Shelf", updated.DefaultLocation);
+        Assert.Equal(2, updated.Version);
+
+        var listed = await defaultService.ListCurrentAsync("user-1", CancellationToken.None);
+        var current = Assert.Single(listed);
+        Assert.Equal(updated.Id, current.Id);
+        Assert.Equal("Top Shelf", current.DefaultLocation);
+    }
 }

@@ -38,6 +38,14 @@ namespace MealPlanner.Infrastructure.Persistence.Migrations
                     b.Property<int>("DefaultShelfLifeDays")
                         .HasColumnType("int");
 
+                    b.Property<string>("DefaultLocationCanonical")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("DefaultLocationDisplay")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
                     b.Property<bool>("IsCurrent")
                         .HasColumnType("bit");
 

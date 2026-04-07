@@ -8,12 +8,24 @@ public sealed record DefaultProductDto(
     int DefaultShelfLifeDays,
     decimal AmountPerPackage,
     string Unit,
+    string? DefaultLocation,
     int Version,
     bool IsCurrent,
     Guid? PreviousVersionId);
 
-public sealed record CreateDefaultProductRequest(string Name, int DefaultShelfLifeDays, decimal AmountPerPackage, string Unit);
-public sealed record UpdateDefaultProductRequest(string Name, int DefaultShelfLifeDays, decimal AmountPerPackage, string Unit);
+public sealed record CreateDefaultProductRequest(
+    string Name,
+    int DefaultShelfLifeDays,
+    decimal AmountPerPackage,
+    string Unit,
+    string? DefaultLocation = null);
+
+public sealed record UpdateDefaultProductRequest(
+    string Name,
+    int DefaultShelfLifeDays,
+    decimal AmountPerPackage,
+    string Unit,
+    string? DefaultLocation = null);
 
 public sealed class DefaultProductService
 {
@@ -29,7 +41,13 @@ public sealed class DefaultProductService
     public async Task<DefaultProductDto> CreateAsync(string userId, CreateDefaultProductRequest request, CancellationToken cancellationToken)
     {
         var measurementTypeId = MeasurementTypeMapper.ParseId(request.Unit);
-        var created = DefaultProduct.Create(userId, request.Name, request.DefaultShelfLifeDays, request.AmountPerPackage, measurementTypeId);
+        var created = DefaultProduct.Create(
+            userId,
+            request.Name,
+            request.DefaultShelfLifeDays,
+            request.AmountPerPackage,
+            measurementTypeId,
+            request.DefaultLocation);
 
         await _defaultProducts.AddAsync(created, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -48,7 +66,12 @@ public sealed class DefaultProductService
         }
 
         var measurementTypeId = MeasurementTypeMapper.ParseId(request.Unit);
-        var next = existing.CreateNextVersion(request.Name, request.DefaultShelfLifeDays, request.AmountPerPackage, measurementTypeId);
+        var next = existing.CreateNextVersion(
+            request.Name,
+            request.DefaultShelfLifeDays,
+            request.AmountPerPackage,
+            measurementTypeId,
+            request.DefaultLocation);
 
         await _defaultProducts.AddAsync(next, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -70,6 +93,7 @@ public sealed class DefaultProductService
             product.DefaultShelfLifeDays,
             product.AmountPerPackage,
             MeasurementTypeMapper.ToApiValue(product.MeasurementTypeId),
+            product.DefaultLocationDisplay,
             product.Version,
             product.IsCurrent,
             product.PreviousVersionId);

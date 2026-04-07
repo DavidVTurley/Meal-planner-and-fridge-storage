@@ -1,6 +1,7 @@
 const state = {
   defaultProducts: [],
   inventoryItems: [],
+  knownLocations: [],
   meals: [],
   unknownIngredients: [],
   etagsByItemId: new Map(),
@@ -31,6 +32,8 @@ const elements = {
   defaultUpdateShelf: document.getElementById("default-update-shelf"),
   defaultUpdateAmount: document.getElementById("default-update-amount"),
   defaultUpdateUnit: document.getElementById("default-update-unit"),
+  defaultLocation: document.getElementById("default-location"),
+  defaultUpdateLocation: document.getElementById("default-update-location"),
 
   inventoryCreateForm: document.getElementById("inventory-create-form"),
   inventoryName: document.getElementById("inventory-name"),
@@ -39,12 +42,15 @@ const elements = {
   inventoryDefaultId: document.getElementById("inventory-default-id"),
   inventoryDateAdded: document.getElementById("inventory-date-added"),
   inventorySellBy: document.getElementById("inventory-sell-by"),
+  inventoryLocation: document.getElementById("inventory-location"),
+  inventoryLocationCombo: document.getElementById("inventory-location-combo"),
   inventoryTableBody: document.getElementById("inventory-table-body"),
   inventoryListBtn: document.getElementById("inventory-list-btn"),
   inventoryFilterForm: document.getElementById("inventory-filter-form"),
   inventoryGetForm: document.getElementById("inventory-get-form"),
   decrementForm: document.getElementById("inventory-decrement-form"),
   decrementId: document.getElementById("decrement-id"),
+  decrementAmount: document.getElementById("decrement-amount"),
   decrementIfMatch: document.getElementById("decrement-if-match"),
 
   mealsListBtn: document.getElementById("meals-list-btn"),
@@ -75,6 +81,10 @@ const elements = {
 
 const tabButtons = [elements.tabDefault, elements.tabActual, elements.tabMeals].filter(Boolean);
 const tabPanels = [elements.panelDefault, elements.panelActual, elements.panelMeals].filter(Boolean);
+const inventoryLocationCombo = createCombobox(elements.inventoryLocationCombo, {
+  emptyText: "Type to create this location",
+  allowCustomInput: true,
+});
 
 setupThemeToggle();
 elements.baseUrl.value = window.location.origin;
@@ -95,6 +105,7 @@ function setupEventHandlers() {
       defaultShelfLifeDays: toNumber(getValue("default-shelf")),
       amountPerPackage: toNumber(getValue("default-amount")),
       unit: getValue("default-unit"),
+      defaultLocation: getValue("default-location") || null,
     };
 
     await requestJson("POST", "/api/default-products", payload);
@@ -102,6 +113,15 @@ function setupEventHandlers() {
   });
 
   elements.defaultUpdateId.addEventListener("change", () => {
+    if (!getValue("default-update-id")) {
+      elements.defaultUpdateName.value = "";
+      elements.defaultUpdateShelf.value = "";
+      elements.defaultUpdateAmount.value = "";
+      elements.defaultUpdateUnit.value = "g";
+      elements.defaultUpdateLocation.value = "";
+      return;
+    }
+
     const selected = state.defaultProducts.find((item) => item.id === getValue("default-update-id"));
     if (!selected) {
       return;
@@ -111,6 +131,7 @@ function setupEventHandlers() {
     elements.defaultUpdateShelf.value = selected.defaultShelfLifeDays;
     elements.defaultUpdateAmount.value = selected.amountPerPackage;
     elements.defaultUpdateUnit.value = selected.unit;
+    elements.defaultUpdateLocation.value = selected.defaultLocation ?? "";
   });
 
   elements.defaultUpdateForm.addEventListener("submit", async (event) => {
@@ -125,6 +146,7 @@ function setupEventHandlers() {
       defaultShelfLifeDays: toNumber(getValue("default-update-shelf")),
       amountPerPackage: toNumber(getValue("default-update-amount")),
       unit: getValue("default-update-unit"),
+      defaultLocation: getValue("default-update-location") || null,
     };
 
     await requestJson("PATCH", `/api/default-products/${id}`, payload);
@@ -138,7 +160,7 @@ function setupEventHandlers() {
     const payload = {
       ingredientName: getValue("inventory-name"),
       remainingAmountMetric: toNumber(getValue("inventory-remaining")),
-      location: getValue("inventory-location"),
+      location: inventoryLocationCombo.getSubmissionValue(),
       dateAdded: getValue("inventory-date-added"),
       defaultProductId: getValue("inventory-default-id"),
       sellByDate: sellByDate ? sellByDate : null,
@@ -196,7 +218,10 @@ function setupEventHandlers() {
     const result = await requestJson("GET", `/api/inventory-items/${id}`);
     if (result.ok && result.body && result.body.id) {
       captureEtags(result.body, result.headers);
-      setDecrementTarget(result.body.id, toQuotedTag(getItemEtag(result.body), result.headers.get("etag")));
+      setDecrementTarget(
+        result.body.id,
+        toQuotedTag(getItemEtag(result.body), result.headers.get("etag")),
+        result.body.remainingAmountMetric);
     }
   });
 
@@ -220,7 +245,10 @@ function setupEventHandlers() {
 
     if (result.ok && result.body && result.body.id) {
       captureEtags(result.body, result.headers);
-      setDecrementTarget(result.body.id, toQuotedTag(getItemEtag(result.body), result.headers.get("etag")));
+      setDecrementTarget(
+        result.body.id,
+        toQuotedTag(getItemEtag(result.body), result.headers.get("etag")),
+        result.body.remainingAmountMetric);
       await listInventoryItems();
     }
   });
@@ -266,6 +294,12 @@ function setupEventHandlers() {
   });
 
   elements.mealUpdateId.addEventListener("change", () => {
+    if (!elements.mealUpdateId.value) {
+      elements.mealUpdateName.value = "";
+      resetIngredientLines(elements.mealUpdateLines, "update");
+      return;
+    }
+
     const selected = state.meals.find((meal) => meal.id === elements.mealUpdateId.value);
     if (!selected) {
       return;
@@ -312,6 +346,10 @@ function setupEventHandlers() {
 
     await listUnknownIngredients();
     await listMeals();
+    const selected = state.meals.find((meal) => meal.id === elements.mealUpdateId.value);
+    if (selected) {
+      hydrateUpdateFormFromMeal(selected);
+    }
   });
 }
 
@@ -412,6 +450,7 @@ async function listInventoryItems() {
   }
 
   state.inventoryItems = result.body;
+  refreshKnownLocations();
   captureEtags(result.body, result.headers);
   renderInventoryTable();
 }
@@ -443,6 +482,10 @@ function renderDefaultProducts() {
   elements.inventoryDefaultId.innerHTML = "";
   elements.unknownConvertDefaultId.innerHTML = "";
 
+  appendPlaceholderOption(elements.defaultUpdateId, "Select Default Product");
+  appendPlaceholderOption(elements.inventoryDefaultId, "Select Ingredient");
+  appendPlaceholderOption(elements.unknownConvertDefaultId, "Select Ingredient");
+
   state.defaultProducts.forEach((product) => {
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -451,6 +494,7 @@ function renderDefaultProducts() {
       <td>${product.defaultShelfLifeDays}</td>
       <td>${product.amountPerPackage}</td>
       <td>${product.unit}</td>
+      <td>${product.defaultLocation ?? "-"}</td>
       <td>${product.version}</td>
       <td>${product.isCurrent}</td>
     `;
@@ -472,17 +516,19 @@ function renderDefaultProducts() {
     elements.unknownConvertDefaultId.appendChild(convertOption);
   });
 
-  if (state.defaultProducts.length > 0) {
-    const current = state.defaultProducts[0];
-    elements.defaultUpdateId.value = current.id;
-    elements.defaultUpdateName.value = current.name;
-    elements.defaultUpdateShelf.value = current.defaultShelfLifeDays;
-    elements.defaultUpdateAmount.value = current.amountPerPackage;
-    elements.defaultUpdateUnit.value = current.unit;
-    if (elements.inventoryDefaultId.value) {
-      syncInventoryIngredientToSelectedDefault();
-      syncSellByFromDateAddedAndShelfLife();
-    }
+  elements.defaultUpdateId.value = "";
+  elements.inventoryDefaultId.value = "";
+  elements.unknownConvertDefaultId.value = "";
+
+  elements.defaultUpdateName.value = "";
+  elements.defaultUpdateShelf.value = "";
+  elements.defaultUpdateAmount.value = "";
+  elements.defaultUpdateUnit.value = "g";
+  elements.defaultUpdateLocation.value = "";
+  syncInventoryIngredientToSelectedDefault();
+
+  if (!elements.defaultLocation.value) {
+    elements.defaultLocation.value = "";
   }
 }
 
@@ -513,14 +559,17 @@ function renderInventoryTable() {
     button.addEventListener("click", () => {
       const id = button.getAttribute("data-id");
       const quoted = state.etagsByItemId.get(id) ?? "";
-      setDecrementTarget(id, quoted);
+      const selected = state.inventoryItems.find((item) => item.id === id);
+      setDecrementTarget(id, quoted, selected?.remainingAmountMetric ?? null);
     });
   });
 }
 
 function renderMeals() {
+  const previousSelection = elements.mealUpdateId.value;
   elements.mealsTableBody.innerHTML = "";
   elements.mealUpdateId.innerHTML = "";
+  appendPlaceholderOption(elements.mealUpdateId, "Select Meal");
 
   state.meals.forEach((meal) => {
     const updateOption = document.createElement("option");
@@ -555,15 +604,20 @@ function renderMeals() {
     });
   });
 
-  if (state.meals.length > 0 && !elements.mealUpdateId.value) {
-    elements.mealUpdateId.value = state.meals[0].id;
-    hydrateUpdateFormFromMeal(state.meals[0]);
+  const selected = state.meals.find((meal) => meal.id === previousSelection);
+  if (selected) {
+    elements.mealUpdateId.value = selected.id;
+    hydrateUpdateFormFromMeal(selected);
+    return;
   }
+
+  elements.mealUpdateId.value = "";
 }
 
 function renderUnknownIngredients() {
   elements.unknownTableBody.innerHTML = "";
   elements.unknownConvertId.innerHTML = "";
+  appendPlaceholderOption(elements.unknownConvertId, "Select Ingredient");
 
   state.unknownIngredients.forEach((unknown) => {
     const references = (unknown.mealReferences ?? [])
@@ -585,6 +639,8 @@ function renderUnknownIngredients() {
     option.textContent = `${unknown.displayName} (${unknown.unit})`;
     elements.unknownConvertId.appendChild(option);
   });
+
+  elements.unknownConvertId.value = "";
 }
 
 function hydrateUpdateFormFromMeal(meal) {
@@ -623,9 +679,9 @@ function appendIngredientLine(container, mode, initialValue = null) {
 
   row.innerHTML = `
     <label class="line-source-field">
-      Source
+      Ingredient
       <div class="combobox line-source-combo">
-        <input class="combobox-input line-source-input" type="text" placeholder="Search source..." autocomplete="off" />
+        <input class="combobox-input line-source-input" type="text" placeholder="Select Ingredient" autocomplete="off" />
         <div class="combobox-list" hidden></div>
       </div>
     </label>
@@ -654,6 +710,7 @@ function appendIngredientLine(container, mode, initialValue = null) {
 
   const sourceCombo = createCombobox(row.querySelector(".line-source-combo"), {
     emptyText: "No sources match",
+    defaultPlaceholder: "Select Ingredient",
   });
 
   row._sourceCombo = sourceCombo;
@@ -684,6 +741,8 @@ function appendIngredientLine(container, mode, initialValue = null) {
     if (initialValue.ingredientKind === "unknown" && initialValue.unknownUnit) {
       unknownUnitSelect.value = initialValue.unknownUnit;
     }
+  } else {
+    sourceCombo.clearValue({ notify: false });
   }
 
   sourceCombo.onChange(() => {
@@ -702,7 +761,7 @@ function appendIngredientLine(container, mode, initialValue = null) {
 
 function applyIngredientLineMode(row, options = {}) {
   const sourceCombo = row._sourceCombo;
-  const sourceValue = sourceCombo?.getValue() ?? UNKNOWN_SOURCE_VALUE;
+  const sourceValue = sourceCombo?.getValue() ?? "";
   const amountInput = row.querySelector(".line-amount");
   const unknownNameInput = row.querySelector(".line-unknown-display-name");
   const unknownUnitSelect = row.querySelector(".line-unknown-unit");
@@ -710,12 +769,13 @@ function applyIngredientLineMode(row, options = {}) {
   const unknownUnitField = row.querySelector(".line-unknown-unit-field");
 
   const selectedProduct = getDefaultProductFromSource(sourceValue);
-  const isKnown = selectedProduct !== null;
+  const isUnknown = sourceValue === UNKNOWN_SOURCE_VALUE;
+  const isKnown = !isUnknown;
 
   row.classList.toggle("line-mode-known", isKnown);
-  row.classList.toggle("line-mode-unknown", !isKnown);
-  unknownNameField.hidden = isKnown;
-  unknownUnitField.hidden = isKnown;
+  row.classList.toggle("line-mode-unknown", isUnknown);
+  unknownNameField.hidden = !isUnknown;
+  unknownUnitField.hidden = !isUnknown;
 
   if (isKnown && selectedProduct) {
     if (options.resetKnownAmount) {
@@ -726,6 +786,11 @@ function applyIngredientLineMode(row, options = {}) {
     unknownUnitSelect.value = "g";
     return;
   }
+
+  if (!isUnknown) {
+    unknownNameInput.value = "";
+    unknownUnitSelect.value = "g";
+  }
 }
 
 function collectIngredientLinesPayload(container) {
@@ -735,7 +800,7 @@ function collectIngredientLinesPayload(container) {
   }
 
   return rows.map((row) => {
-    const sourceValue = row._sourceCombo?.getValue() ?? UNKNOWN_SOURCE_VALUE;
+    const sourceValue = row._sourceCombo?.getValue() ?? "";
     const amount = toNumber(row.querySelector(".line-amount").value);
     const selectedProduct = getDefaultProductFromSource(sourceValue);
 
@@ -750,6 +815,10 @@ function collectIngredientLinesPayload(container) {
       };
     }
 
+    if (sourceValue !== UNKNOWN_SOURCE_VALUE) {
+      throw new Error("Each ingredient line must select an ingredient source.");
+    }
+
     const payload = {
       ingredientKind: "unknown",
       defaultProductId: null,
@@ -761,6 +830,10 @@ function collectIngredientLinesPayload(container) {
 
     payload.unknownDisplayName = row.querySelector(".line-unknown-display-name").value.trim() || null;
     payload.unknownUnit = row.querySelector(".line-unknown-unit").value || null;
+
+    if (!payload.unknownDisplayName) {
+      throw new Error("Unknown ingredient lines require a display name.");
+    }
 
     return payload;
   });
@@ -775,9 +848,6 @@ function populateLineSourceOptions(sourceCombo) {
     })),
   ];
   sourceCombo.setOptions(options);
-  if (!sourceCombo.getValue()) {
-    sourceCombo.setValue(UNKNOWN_SOURCE_VALUE, { notify: false });
-  }
 }
 
 function refreshIngredientLineOptions() {
@@ -809,14 +879,33 @@ function getDefaultProductFromSource(sourceValue) {
 }
 
 function createCombobox(container, options = {}) {
+  if (!container) {
+    return {
+      setOptions() {},
+      setValue() {},
+    clearValue() {},
+    setInputValue() {},
+    getValue() {
+      return "";
+    },
+      getSubmissionValue() {
+        return "";
+      },
+      onChange() {},
+    };
+  }
+
   const input = container.querySelector(".combobox-input");
   const list = container.querySelector(".combobox-list");
   const emptyText = options.emptyText ?? "No matches";
+  const allowCustomInput = options.allowCustomInput === true;
+  const defaultPlaceholder = options.defaultPlaceholder ?? input.getAttribute("placeholder") ?? "";
   const handlers = [];
 
   let items = [];
   let selectedValue = "";
   let selectedLabel = "";
+  let customValue = "";
   let isOpen = false;
 
   const normalize = (value) => value.trim().toLowerCase();
@@ -867,7 +956,17 @@ function createCombobox(container, options = {}) {
     list.hidden = true;
     if (selectedLabel) {
       input.value = selectedLabel;
+      customValue = "";
+      return;
     }
+
+    if (!allowCustomInput) {
+      input.value = "";
+      return;
+    }
+
+    customValue = input.value.trim();
+    input.value = customValue;
   };
 
   const notify = () => {
@@ -880,9 +979,11 @@ function createCombobox(container, options = {}) {
       items = Array.isArray(nextItems) ? nextItems : [];
       const selected = findByValue(selectedValue);
       if (!selected && items.length > 0) {
-        selectedValue = items[0].value;
-        selectedLabel = items[0].label;
-        input.value = selectedLabel;
+        selectedValue = "";
+        selectedLabel = "";
+        if (!allowCustomInput) {
+          input.value = "";
+        }
       } else if (selected) {
         selectedLabel = selected.label;
         input.value = selectedLabel;
@@ -901,6 +1002,7 @@ function createCombobox(container, options = {}) {
       const previous = selectedValue;
       selectedValue = selected.value;
       selectedLabel = selected.label;
+      customValue = "";
       input.value = selected.label;
 
       if (setOptions.notify !== false && previous !== selectedValue) {
@@ -909,6 +1011,36 @@ function createCombobox(container, options = {}) {
     },
     getValue() {
       return selectedValue;
+    },
+    clearValue(setOptions = {}) {
+      const previous = selectedValue;
+      selectedValue = "";
+      selectedLabel = "";
+      customValue = "";
+      input.value = "";
+      if (setOptions.notify !== false && previous) {
+        notify();
+      }
+    },
+    getSubmissionValue() {
+      if (selectedLabel) {
+        return selectedLabel;
+      }
+
+      if (allowCustomInput) {
+        return input.value.trim();
+      }
+
+      return "";
+    },
+    setInputValue(value, setOptions = {}) {
+      selectedValue = "";
+      selectedLabel = "";
+      customValue = (value ?? "").trim();
+      input.value = customValue;
+      if (setOptions.notify) {
+        notify();
+      }
     },
     onChange(handler) {
       handlers.push(handler);
@@ -921,9 +1053,14 @@ function createCombobox(container, options = {}) {
       open();
     }
 
+    if (!allowCustomInput) {
+      selectedValue = "";
+      selectedLabel = "";
+    }
+
     render(input.value);
     const matches = findVisibleMatches(input.value);
-    if (matches.length === 1) {
+    if (!allowCustomInput && matches.length === 1) {
       api.setValue(matches[0].value);
       close();
     }
@@ -940,6 +1077,12 @@ function createCombobox(container, options = {}) {
       const matches = findVisibleMatches(input.value);
       if (matches.length === 1) {
         api.setValue(matches[0].value);
+      } else if (!allowCustomInput) {
+        return;
+      } else {
+        selectedValue = "";
+        selectedLabel = "";
+        customValue = input.value.trim();
       }
       close();
     }
@@ -950,25 +1093,38 @@ function createCombobox(container, options = {}) {
     }, 80);
   });
 
+  if (defaultPlaceholder) {
+    input.setAttribute("placeholder", defaultPlaceholder);
+  }
+
   return api;
 }
 
 function syncInventoryIngredientToSelectedDefault() {
   const selectedId = elements.inventoryDefaultId.value;
   if (!selectedId) {
+    elements.inventoryName.value = "";
+    elements.inventoryRemaining.value = "";
     elements.inventoryRemainingUnitHint.textContent = "(unit: -)";
+    inventoryLocationCombo.clearValue({ notify: false });
     return;
   }
 
   const selected = state.defaultProducts.find((item) => item.id === selectedId);
   if (!selected) {
+    elements.inventoryName.value = "";
+    elements.inventoryRemaining.value = "";
     elements.inventoryRemainingUnitHint.textContent = "(unit: -)";
+    inventoryLocationCombo.clearValue({ notify: false });
     return;
   }
 
   elements.inventoryName.value = selected.name;
   elements.inventoryRemaining.value = String(selected.amountPerPackage);
   elements.inventoryRemainingUnitHint.textContent = `(unit: ${selected.unit})`;
+  if (selected.defaultLocation) {
+    inventoryLocationCombo.setInputValue(selected.defaultLocation);
+  }
 }
 
 function syncSellByFromDateAddedAndShelfLife() {
@@ -992,11 +1148,40 @@ function syncSellByFromDateAddedAndShelfLife() {
   elements.inventorySellBy.value = toIsoDate(parsed);
 }
 
-function setDecrementTarget(id, quotedEtag) {
+function setDecrementTarget(id, quotedEtag, remainingAmount = null) {
   elements.decrementId.value = id ?? "";
   elements.decrementIfMatch.value = quotedEtag ?? "";
+  if (remainingAmount !== null && remainingAmount !== undefined) {
+    elements.decrementAmount.value = String(remainingAmount);
+  }
   const getIdInput = document.getElementById("inventory-get-id");
   getIdInput.value = id ?? "";
+}
+
+function refreshKnownLocations() {
+  const distinct = new Set();
+  state.inventoryItems.forEach((item) => {
+    if (item.locationDisplay) {
+      distinct.add(item.locationDisplay);
+    }
+  });
+
+  state.knownLocations = Array.from(distinct).sort((left, right) => left.localeCompare(right));
+  inventoryLocationCombo.setOptions(
+    state.knownLocations.map((location) => ({
+      value: location,
+      label: location,
+    })),
+  );
+}
+
+function appendPlaceholderOption(select, label) {
+  const option = document.createElement("option");
+  option.value = "";
+  option.textContent = label;
+  option.disabled = true;
+  option.selected = true;
+  select.appendChild(option);
 }
 
 function captureEtags(body, headers) {

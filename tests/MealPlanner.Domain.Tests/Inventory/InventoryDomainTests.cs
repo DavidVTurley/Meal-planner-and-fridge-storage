@@ -17,9 +17,9 @@ public sealed class InventoryDomainTests
     [Fact]
     public void CreateNextVersion_MarksPreviousNonCurrent_AndIncrementsVersion()
     {
-        var original = DefaultProduct.Create("user-1", "Pasta", 7, 1000, MeasurementTypeIds.Grams);
+        var original = DefaultProduct.Create("user-1", "Pasta", 7, 1000, MeasurementTypeIds.Grams, null);
 
-        var next = original.CreateNextVersion("Pasta", 5, 800, MeasurementTypeIds.Grams);
+        var next = original.CreateNextVersion("Pasta", 5, 800, MeasurementTypeIds.Grams, null);
 
         Assert.False(original.IsCurrent);
         Assert.True(next.IsCurrent);
@@ -43,5 +43,14 @@ public sealed class InventoryDomainTests
         var status = item.GetFreshnessStatus(new DateOnly(2026, 4, 7));
 
         Assert.Equal(FreshnessStatus.UseSoon, status);
+    }
+
+    [Fact]
+    public void DefaultProduct_NormalizesDefaultLocation_WhenProvided()
+    {
+        var product = DefaultProduct.Create("user-1", "Eggs", 10, 12, MeasurementTypeIds.Piece, "  Fridge  Door ");
+
+        Assert.Equal("Fridge  Door", product.DefaultLocationDisplay);
+        Assert.Equal("fridge door", product.DefaultLocationCanonical);
     }
 }
