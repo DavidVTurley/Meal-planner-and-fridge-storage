@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="AGENTS.md" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/MealPlanner.Api/MealPlanner.Api.csproj" />
     <Project Path="src/MealPlanner.Application/MealPlanner.Application.csproj" />
