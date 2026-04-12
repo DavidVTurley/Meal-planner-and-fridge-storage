@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-04-12
+
+### Changed
+- Refactored `MealPlanner.Api` so task-based endpoint registrations live in separate classes for default products, inventory, meals, and unknown ingredients.
+- Slimmed `Program.cs` down to host composition, middleware, host-only routes, and endpoint registration calls.
+- Moved shared API helpers for OpenAPI setup, request header extraction, and ETag formatting into dedicated support types with no intended behavior change.
+
 ## 2026-04-05
 
 ### Added
