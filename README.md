@@ -6,22 +6,22 @@ This project defines a pantry-first meal planning product.
 
 Primary value:
 - Reduce food waste
-- Keep pantry/fridge/freezer inventory accurate
+- Keep pantry/fridge/freezer stock accurate
 - Support realistic cooking behavior (actual usage, substitutions, split-package usage)
 
 ## Document Map
 
 - `documentation/IDEAS.md`: high-level product ideas, goals, risks, and future thoughts.
 - `documentation/PRODUCT_REQUIREMENTS.md`: implementation-ready product behavior and acceptance criteria for v1.
-- `documentation/TECHNICAL_SPEC_INVENTORY_FOUNDATION.md`: locked implementation plan for v1 inventory foundation architecture and rules.
+- `documentation/TECHNICAL_SPEC_INVENTORY_FOUNDATION.md`: locked implementation plan for v1 My Stock foundation architecture and rules.
 - `documentation/TECHNICAL_SPEC_MEAL_DEFINITION_AND_UNKNOWNS.md`: locked implementation plan for v1 meal definition and unknown ingredient handling.
 - `documentation/CODEBASE_STYLE.md`: codebase architecture, coding standards, and API/data/testing conventions.
 
 ## V1 Scope
 
 In scope:
-- Pantry/fridge/freezer inventory tracking with per-package entries
-- Default product templates with manual first-use defaults (no inference in v1)
+- Pantry/fridge/freezer My Stock tracking with per-package entries
+- Product Catalog templates with manual first-use defaults (no inference in v1)
 - Sell-by freshness states (`Use soon`, `Expired`)
 - Meal definition with known + unknown ingredients
 - Weekly planner (Breakfast/Lunch/Dinner + additional ad-hoc meals)
@@ -38,8 +38,8 @@ Out of scope:
 
 ## Glossary
 
-- `Default product`: user-editable template for future pantry entries (name, shelf-life, amount-per-package, unit).
-- `Inventory item`: one physical package stored in a user location with snapshot values.
+- `Product Catalog item`: user-editable template for future pantry entries (name, shelf-life, amount-per-package, unit).
+- `My Stock item`: one physical package stored in a user location with snapshot values.
 - `Snapshot values`: package amount and unit captured at entry creation; not rewritten by later default edits.
 - `Stock-tracked ingredient`: ingredient line that must allocate to pantry packages before meal completion.
 - `Unknown ingredient / non-stock usage`: ingredient captured during meal flow without pantry allocation; queued for later resolution.
@@ -47,7 +47,7 @@ Out of scope:
 
 ## Implementation Priority Order
 
-1. Inventory foundation
+1. My Stock foundation
    - Parts 1-5 in `documentation/PRODUCT_REQUIREMENTS.md`
 2. Meal definition and unknown handling
    - Parts 7-9

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inventory Wireframe</title>
+  <title>My Stock Wireframe</title>
   <link rel="stylesheet" href="./styles.css" />
   <script defer src="./wireframe.js"></script>
 </head>
@@ -11,7 +11,7 @@
   <div class="app-frame">
     <header class="topbar">
       <button class="btn" type="button" data-drawer-open aria-expanded="false">Menu</button>
-      <h1>Inventory</h1>
+      <h1>My Stock</h1>
       <a class="link-btn" href="./index.html">Hub</a>
     </header>
 
@@ -20,7 +20,8 @@
       <nav>
         <a class="drawer-link" href="./index.html">Hub</a>
         <a class="drawer-link" href="./today.html">Today</a>
-        <a class="drawer-link active" href="./inventory-list.html">Inventory</a>
+        <a class="drawer-link" href="./product-catalog.html">Product Catalog</a>
+        <a class="drawer-link active" href="./inventory-list.html">My Stock</a>
         <a class="drawer-link" href="./meal-editor.html">Meal Editor</a>
         <a class="drawer-link" href="./unknowns.html">Unknowns</a>
       </nav>
@@ -62,7 +63,7 @@
 
       <div data-state-group="inventory-state">
         <section data-state-panel="default" class="panel">
-          <h2>Inventory Items</h2>
+          <h2>My Stock Items</h2>
           <div class="list">
             <div class="item" data-item-id="inventory-milk" data-item-label="Milk" data-context="inventory" data-unit="ml" data-amount="750">
               <button

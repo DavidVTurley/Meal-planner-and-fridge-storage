@@ -1,4 +1,4 @@
-# Inventory Foundation Technical Spec (.NET 10 with .NET 11 Readiness)
+# My Stock Foundation Technical Spec (.NET 10 with .NET 11 Readiness)
 
 Spec Version: v1.1  
 Last Updated: 2026-04-05
@@ -41,7 +41,7 @@ Last Updated: 2026-04-05
 - All required default fields must be manually entered on first-time creation.
 - No global/system fallback defaults are used.
 
-## API Surface (Inventory First)
+## API Surface (My Stock First)
 
 - `POST /api/default-products`
 - `PATCH /api/default-products/{id}` (creates next version, does not mutate old row)
@@ -56,7 +56,7 @@ Last Updated: 2026-04-05
 ## Integrity, Concurrency, And Validation
 
 - Use optimistic concurrency on `inventory_item` updates; stale write attempts return `409 Conflict`.
-- Inventory update endpoints require `If-Match` with a server-issued `ETag`; stale tokens return `409 Conflict`.
+- My Stock update endpoints require `If-Match` with a server-issued `ETag`; stale tokens return `409 Conflict`.
 - Manual decrement cannot make remaining amount negative.
 - Save is blocked if required fields/default association are missing.
 - Sell-by defaults to `DateAdded + DefaultShelfLifeDays`, user override allowed.
@@ -65,8 +65,8 @@ Last Updated: 2026-04-05
 
 - **Domain tests:** required fields, unit constraints, snapshot immutability, append-only version chain validity, location normalization behavior.
 - **Application tests:** inference pass/fail paths, sell-by autofill + override, duplicate add behavior.
-- **API/integration tests (PostgreSQL):** default versioning on patch, inventory creation rules, manual decrement with optimistic concurrency conflict handling.
-- **Acceptance mapping:** execute `Part 6` scenarios relevant to inventory foundation.
+- **API/integration tests (PostgreSQL):** Product Catalog versioning on patch, My Stock creation rules, manual decrement with optimistic concurrency conflict handling.
+- **Acceptance mapping:** execute `Part 6` scenarios relevant to My Stock foundation.
 - **CI lanes:** required `.NET 10`; non-blocking `.NET 11` compatibility lane.
 
 ## Assumptions

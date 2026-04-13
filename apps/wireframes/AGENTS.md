@@ -4,7 +4,7 @@
 - This project is for tooling-agnostic, low-fidelity UI wireframes.
 
 ## Scope
-- Cover current API-supported flows only: `Today`, `Inventory`, `Meals`, `Unknowns`, `Settings`.
+- Cover current API-supported flows only: `Today`, `Product Catalog`, `My Stock`, `Meals`, `Unknowns`, `Settings`.
 - Do not implement planner, current-meal, or allocation screens yet.
 
 ## Fidelity

@@ -7,16 +7,20 @@
 
 ## Interaction Rules
 - Avoid global action clusters for item-specific actions.
-- Inventory cards should be tappable and reveal details inline.
+- Product Catalog is a first-class wireframe flow and should stay reachable from the main hub and drawer.
+- Product Catalog cards should reveal more detail inline before exposing edit/version controls.
+- Product Catalog version edits should open inside the relevant card, not in a global action area.
+- My Stock cards should be tappable and reveal details inline.
 - Avoid redundant per-card action buttons when card tap already reveals details.
-- Inventory expand/collapse should read as one continuous folding card (no nested bordered dropdown header).
-- Inventory freshness should be shown as days left/overdue.
-- Omit `Last updated` from inventory expanded details in this wireframe stage.
+- My Stock expand/collapse should read as one continuous folding card (no nested bordered dropdown header).
+- My Stock freshness should be shown as days left/overdue.
+- Omit `Last updated` from My Stock expanded details in this wireframe stage.
 - Every quick decrement must expose an immediate `Undo` action.
 - On `Today`, summary controls can drive filtering for the urgent list beneath it.
 - Advanced controls should be hidden behind reveal buttons by default.
 - Core overview information must be visible without opening advanced controls.
 - Advanced panels should open inline and close after primary apply/filter actions.
+- Product Catalog name/location filters should stay hidden behind a reveal button by default.
 
 ## Color Semantics
 - Red is reserved for destructive or reduction actions (for example, item `-` decrement).

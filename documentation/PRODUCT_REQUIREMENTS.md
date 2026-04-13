@@ -2,16 +2,16 @@
 
 This document captures implementation-ready product behavior. Each part is separated so work can be planned and delivered incrementally.
 
-## Part 1: Inventory Add Flow (Mandatory Default Association)
+## Part 1: My Stock Add Flow (Mandatory Product Catalog Association)
 
 ### Goal
 
-Ensure every saved inventory item is tied to a default product.
+Ensure every saved My Stock item is tied to a Product Catalog item.
 
 ### Requirements
 
-- User must select an existing default product or create a new one before saving an inventory item.
-- Saving an inventory item without a default association is blocked.
+- User must select an existing Product Catalog item or create a new one before saving a My Stock item.
+- Saving a My Stock item without a Product Catalog association is blocked.
 - This rule applies equally to pantry, fridge, and freezer.
 
 ### Acceptance
@@ -19,7 +19,7 @@ Ensure every saved inventory item is tied to a default product.
 - Known default path: user selects an existing default and can save.
 - Unknown default path: user cannot save until a default is created.
 
-## Part 2: Default Product Management
+## Part 2: Product Catalog Management
 
 ### Goal
 
@@ -28,13 +28,13 @@ Speed up repeat item entry by storing reusable per-user defaults.
 ### Requirements
 
 - Defaults are personal to each user (not shared in v1).
-- Defaults are editable templates used when creating future pantry entries.
+- Product Catalog items are editable templates used when creating future pantry entries.
 - Required default fields:
   - Product name
   - Default shelf-life days
   - Amount per package
   - Measurement unit (`g`, `ml`, or `piece`)
-- Editing a default product (for example, changing package amount from 1000g to 800g) applies only to new pantry entries created after the change.
+- Editing a Product Catalog item (for example, changing package amount from 1000g to 800g) applies only to new pantry entries created after the change.
 - On first-time ingredient use, v1 does not infer default values from history.
 - First-time save is blocked until user enters all required default fields (`default shelf-life days`, `amount per package`, `measurement unit`).
 - No system-wide fallback defaults are used when required default fields are missing.
@@ -48,7 +48,7 @@ Speed up repeat item entry by storing reusable per-user defaults.
 - Default edit isolation: changing a default package amount affects new entries only.
 - First-time ingredient creation requires full default input before save is allowed.
 
-## Part 3: Inventory Item Data Model
+## Part 3: My Stock Item Data Model
 
 ### Goal
 
@@ -62,13 +62,13 @@ Capture consistent item data needed for tracking and freshness workflows.
 - Measurement unit (`g`, `ml`, or `piece`; snapshot value captured at pantry-entry creation)
 - Location (string; supports canonical values like `pantry`, `fridge`, `freezer` and custom user-defined locations)
 - Sell-by date
-- Linked default product
+- Linked Product Catalog item
 
 ### Snapshot Rules
 
 - One pantry entry represents one physical package.
 - Pantry entries persist their own snapshot package amount and unit from creation time.
-- Snapshot fields on pantry entries do not change when the linked default product is edited later.
+- Snapshot fields on pantry entries do not change when the linked Product Catalog item is edited later.
 - Package fraction (`0..1`) may be shown for user convenience, but metric remaining amount is the source of truth.
 
 ### Acceptance
@@ -95,11 +95,11 @@ Provide clear, date-driven urgency signals for food usage.
 - Item transitions from normal to `Use soon` at T-3 days.
 - Item transitions to `Expired` after sell-by date passes.
 
-## Part 5: Quantity Update Behavior
+## Part 5: My Stock Quantity Update Behavior
 
 ### Goal
 
-Keep inventory counts accurate through explicit user updates.
+Keep My Stock counts accurate through explicit user updates.
 
 ### Requirements
 
@@ -117,8 +117,8 @@ Keep inventory counts accurate through explicit user updates.
 
 ### End-To-End Scenarios
 
-- Add item from known default in pantry and save successfully.
-- Add unknown fridge item, create default inline, then save.
+- Add item from known Product Catalog item in pantry and save successfully.
+- Add unknown fridge item, create Product Catalog item inline, then save.
 - Override auto-filled sell-by during freezer item add and save.
 - Verify freshness state transitions over time for saved items.
 - Verify manual decrement updates non-meal usage quantities without merging records.
@@ -139,7 +139,7 @@ Allow users to create meals and add them to a meal list using known ingredients 
 - User can create a meal record with a meal name.
 - User can add a meal to a meal list (planning list).
 - Each meal supports multiple ingredient lines.
-- Ingredient lines can reference predefined known ingredients.
+- Ingredient lines can reference predefined Product Catalog items.
 - Each ingredient line requires:
   - A usage mode (`measurement` canonical; `package` shortcut)
   - A defined usage amount
@@ -182,7 +182,7 @@ Provide a dedicated overview so unknown ingredients can be resolved later into k
 
 - System provides an overview list of unknown ingredients used in meals.
 - Overview includes where each unknown ingredient is currently used (meal references).
-- User can later convert an unknown ingredient into a known predefined ingredient.
+- User can later convert an unknown ingredient into a Product Catalog item.
 - After conversion, linked meal ingredient lines use the known ingredient reference.
 
 ### Acceptance
@@ -236,22 +236,22 @@ Provide a real-world cooking view where planned recipes can be executed, substit
 - User substitutes a planned meal and sees the slot updated to the replacement meal.
 - User adds an unknown ingredient while cooking and it is saved as unknown.
 
-## Part 12: Inventory Impact From Meal Completion
+## Part 12: My Stock Impact From Meal Completion
 
 ### Goal
 
-Ensure inventory reflects real usage by applying adjusted actual amounts only when cooking is finished.
+Ensure My Stock reflects real usage by applying adjusted actual amounts only when cooking is finished.
 
 ### Requirements
 
-- Inventory updates are triggered only when user marks current meal as completed.
-- Inventory deduction uses actual adjusted amounts, not original planned amounts.
+- My Stock updates are triggered only when user marks current meal as completed.
+- My Stock deduction uses actual adjusted amounts, not original planned amounts.
 - Deduction is metric-canonical for all meal usage.
 - Package shortcut handling:
   - `Use package` means consume 100% of currently remaining amount of the selected package.
   - If a package is partially remaining, `Use package` consumes only that remaining amount (not original full package amount).
 - Conversion uses canonical units (`g`, `ml`, `piece`) and does not support imperial units.
-- Meal completion requires explicit usage allocation to concrete pantry inventory items (packages) for stock-tracked ingredient lines.
+- Meal completion requires explicit usage allocation to concrete pantry My Stock items (packages) for stock-tracked ingredient lines.
 - User cannot confirm meal completion until all stock-tracked ingredient usage is fully allocated.
 - Allocation supports multi-package usage for a single ingredient line (split across multiple packages).
 - Measurement conversion uses selected allocated pantry packages, not the current default-product package amount.
@@ -264,10 +264,10 @@ Ensure inventory reflects real usage by applying adjusted actual amounts only wh
 
 ### Acceptance
 
-- Inventory does not change while user is still editing current meal amounts.
+- My Stock does not change while user is still editing current meal amounts.
 - Completing meal applies deductions that match actual entered values.
 - Unknown ingredients captured during completion appear in the unknown overview.
-- Measurement-based usage deducts inventory according to per-package conversion in metric units.
+- Measurement-based usage deducts My Stock according to per-package conversion in metric units.
 - If one package is insufficient, user can allocate remaining usage to additional packages and still complete the meal.
 - Completion is blocked when any stock-tracked ingredient line has unallocated usage.
 - In mixed-size allocation (1000g + 800g), deduction uses each selected package snapshot size.
@@ -278,16 +278,16 @@ Ensure inventory reflects real usage by applying adjusted actual amounts only wh
 
 ### Goal
 
-Ensure real inventory depletion is accurate by forcing users to confirm exactly which inventory packages were used.
+Ensure real My Stock depletion is accurate by forcing users to confirm exactly which packages were used.
 
 ### Requirements
 
 - During meal completion, each ingredient line enters an allocation step.
-- User must select one or more specific pantry inventory items/packages that satisfy the ingredient usage.
+- User must select one or more specific pantry My Stock items/packages that satisfy the ingredient usage.
 - Split allocation is supported across multiple packages for the same ingredient.
 - Allocation can mix full and partial consumption across selected packages.
 - Allocation must total the full actual usage amount before confirmation is allowed.
-- If exactly one eligible linked inventory item exists for an ingredient line, allocation auto-fills to that item.
+- If exactly one eligible linked My Stock item exists for an ingredient line, allocation auto-fills to that item.
 - Auto-filled allocation remains editable by the user before final confirmation.
 - Allocation identity is package-specific and always uses the selected package snapshot amount-per-package for conversion.
 - Eligibility requires shared default-product identity link between meal ingredient and pantry package.
@@ -309,7 +309,7 @@ Keep implementation docs aligned with idea-level capabilities while intentionall
 ### Requirements
 
 - Grocery-list capability is planned and recognized, but out of v1 scope.
-- Future grocery-list behavior should derive needs from weekly plan and current inventory state.
+- Future grocery-list behavior should derive needs from weekly plan and current My Stock state.
 - No v1 behavioral commitments are defined yet for grocery list generation, grouping, or prioritization.
 
 ### Acceptance

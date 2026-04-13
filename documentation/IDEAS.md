@@ -22,14 +22,14 @@ This file is the single source of truth for product ideas.
 
 ## Core Capabilities
 
-- Track pantry, fridge, and freezer inventory separately with quantities and dates.
+- Track pantry, fridge, and freezer My Stock separately with quantities and dates.
 - Build a weekly meal plan that can suggest meals from available ingredients.
-- Generate a grocery list from planned meals plus current inventory.
+- Generate a grocery list from planned meals plus current My Stock.
 - Create meals from predefined ingredients with per-ingredient usage amounts.
 - Allow custom unknown ingredients in meals and review them later in a dedicated overview.
 - Plan meals by week using day slots plus ad-hoc additional meals.
-- Use a current-meal view to adjust actual ingredient usage before inventory is updated.
-- Use metric-only measurements (`g`/`ml`) with per-package amounts for conversion between recipe usage and inventory packages.
+- Use a current-meal view to adjust actual ingredient usage before My Stock is updated.
+- Use metric-only measurements (`g`/`ml`) with per-package amounts for conversion between recipe usage and My Stock packages.
 - Require package-level confirmation of what was used, including split usage across multiple packages.
 
 ## Implementation Notes
@@ -38,13 +38,13 @@ This file is the single source of truth for product ideas.
 
 ## User Workflows/Journeys
 
-- End-of-week flow: review inventory, plan meals, auto-build shopping list.
+- End-of-week flow: review My Stock, plan meals, auto-build shopping list.
 - Midweek flow: check "use soon" ingredients and re-plan one or two meals.
 - Post-cooking flow: log leftovers and mark consumed ingredients.
 
 ## Risks/Challenges
 
-- Inventory logging can feel tedious if data entry is too manual.
+- My Stock logging can feel tedious if data entry is too manual.
 - Users may abandon planning if setup takes too long.
 - Suggestion quality depends on ingredient and recipe data accuracy.
 
@@ -55,6 +55,6 @@ This file is the single source of truth for product ideas.
 
 ## Parking Lot (Future Ideas)
 
-- Barcode scanning for faster inventory updates.
+- Barcode scanning for faster My Stock updates.
 - Price comparison across stores and shopping history trends.
 - Nutrition and macro goals layered onto meal recommendations.

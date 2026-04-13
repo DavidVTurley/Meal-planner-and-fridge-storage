@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-04-13
+
+### Changed
+- Added a new `Product Catalog` wireframe screen with top-level hub/drawer navigation, hidden name/location filters, expandable product cards, and inline version-management dialogs.
+- Updated wireframe navigation, project-local rules, and style guidance to treat `Product Catalog` as a first-class user-facing flow alongside `Today`, `My Stock`, `Meal Editor`, and `Unknowns`.
+- Installed a user-level `rg.exe` in `C:\Users\david\AppData\Local\OpenAI\Codex\bin` so ripgrep resolves reliably in Codex sessions instead of failing from the packaged app path.
+
 ## 2026-04-12
 
 ### Added
@@ -9,6 +16,7 @@
 - Added `apps/wireframes/STYLE_GUIDE.md` to define wireframe interaction and simplicity rules.
 
 ### Changed
+- Applied user-facing terminology updates across wireframes and documentation: `Default Products` -> `Product Catalog` and `Inventory` -> `My Stock`, while preserving implementation identifiers and API/schema names.
 - Simplified Inventory foldout card presentation by removing nested dropdown-style header framing, switching freshness to day-based text, and removing `Last updated` detail lines.
 - Simplified Inventory wireframe cards by removing per-item `-` and `View Detail` buttons, adding tap-to-expand inline detail panels with `Edit` and `Update Amount` actions, and removing the inventory undo strip.
 - Removed ETag terminology from user-facing wireframes and replaced inventory conflict copy with user-friendly update wording.

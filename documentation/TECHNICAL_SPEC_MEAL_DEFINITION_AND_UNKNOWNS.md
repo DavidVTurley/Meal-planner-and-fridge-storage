@@ -9,7 +9,7 @@ Last Updated: 2026-04-05
 - Adds meal definition with known ingredients and metric usage.
 - Allows unknown ingredients during meal definition.
 - Adds unknown ingredient overview and conversion flow.
-- Keeps inventory allocation behavior deferred to Phase 3 (Parts 10-13).
+- Keeps My Stock allocation behavior deferred to Phase 3 (Parts 10-13).
 
 ## Core Rules
 
@@ -63,7 +63,7 @@ Last Updated: 2026-04-05
 - Unknown ingredient line behavior:
   - Stores unknown reference and display name.
   - Appears in unknown ingredient overview.
-  - Does not require inventory allocation in this phase.
+  - Does not require My Stock allocation in this phase.
 - Conversion behavior:
   - Conversion target must be a user-owned `default_product`.
   - Converted unknown is marked `converted`.

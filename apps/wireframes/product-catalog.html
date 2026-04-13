@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Catalog Wireframe</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script defer src="./wireframe.js"></script>
+</head>
+<body>
+  <div class="app-frame">
+    <header class="topbar">
+      <button class="btn" type="button" data-drawer-open aria-expanded="false">Menu</button>
+      <h1>Product Catalog</h1>
+      <a class="link-btn" href="./index.html">Hub</a>
+    </header>
+
+    <aside class="drawer" data-drawer hidden>
+      <h2>Navigate</h2>
+      <nav>
+        <a class="drawer-link" href="./index.html">Hub</a>
+        <a class="drawer-link" href="./today.html">Today</a>
+        <a class="drawer-link active" href="./product-catalog.html">Product Catalog</a>
+        <a class="drawer-link" href="./inventory-list.html">My Stock</a>
+        <a class="drawer-link" href="./meal-editor.html">Meal Editor</a>
+        <a class="drawer-link" href="./unknowns.html">Unknowns</a>
+      </nav>
+      <button class="btn" type="button" data-drawer-close>Close</button>
+    </aside>
+    <div class="drawer-backdrop" data-drawer-backdrop data-drawer-close hidden></div>
+
+    <main class="content">
+      <section class="panel">
+        <h2>Screen State</h2>
+        <div class="state-switch" data-state-target="catalog-state">
+          <button type="button" data-state="default" aria-pressed="true">Default</button>
+          <button type="button" data-state="empty" aria-pressed="false">Empty</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Catalog Actions</h2>
+            <p class="muted">Reusable product templates for future My Stock entries.</p>
+          </div>
+          <button class="btn btn-success" type="button">Add Product</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Search And Filter</h2>
+        <button class="btn" type="button" data-panel-toggle="catalog-advanced" aria-expanded="false" aria-controls="catalog-advanced-panel">
+          Search & Filter
+        </button>
+        <div class="advanced-panel" id="catalog-advanced-panel" data-panel="catalog-advanced" hidden>
+          <div class="form-grid">
+            <label>
+              Name
+              <input type="text" placeholder="milk" data-catalog-filter-name />
+            </label>
+            <label>
+              Location
+              <input type="text" placeholder="Fridge" data-catalog-filter-location />
+            </label>
+            <div class="btn-row">
+              <button class="btn btn-success" type="button" data-catalog-apply data-panel-apply="catalog-advanced">Apply Filters</button>
+              <button class="btn" type="button" data-catalog-clear>Clear</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div data-state-group="catalog-state" data-catalog-state-group>
+        <section data-state-panel="default" class="panel">
+          <h2>Catalog Items</h2>
+          <div class="list" data-catalog-list>
+            <div class="item" data-catalog-item data-name="milk" data-location="fridge">
+              <button
+                class="card-toggle"
+                type="button"
+                data-card-toggle
+                aria-expanded="false"
+                aria-controls="catalog-card-milk">
+                <div class="item-head">
+                  <div>
+                    <p class="item-title">Milk</p>
+                    <p class="item-meta">Fridge - 1000 ml per package</p>
+                  </div>
+                  <div class="card-summary-end">
+                    <span class="tag">v3</span>
+                    <span class="item-chevron" aria-hidden="true">v</span>
+                  </div>
+                </div>
+              </button>
+              <div class="card-panel" id="catalog-card-milk" data-card-panel hidden>
+                <p class="item-meta">Shelf life: 7 days from add date</p>
+                <p class="item-meta">Current version: v3 active for future stock entries</p>
+                <div class="btn-row">
+                  <button class="btn" type="button" data-inline-dialog-open="catalog-version-milk">Manage Version</button>
+                </div>
+                <div class="inline-dialog" data-inline-dialog="catalog-version-milk" hidden>
+                  <div class="dialog-head">
+                    <div>
+                      <p class="item-title">Create Next Version</p>
+                      <p class="item-meta">Editing this template creates v4 for future entries only.</p>
+                    </div>
+                    <button class="btn btn-small" type="button" data-inline-dialog-close="catalog-version-milk">Close</button>
+                  </div>
+                  <div class="form-grid">
+                    <label>
+                      Product Name
+                      <input type="text" value="Milk" />
+                    </label>
+                    <label>
+                      Default Location
+                      <input type="text" value="Fridge" />
+                    </label>
+                    <label>
+                      Amount Per Package
+                      <input type="number" value="1000" />
+                    </label>
+                    <label>
+                      Unit
+                      <select>
+                        <option>g</option>
+                        <option selected>ml</option>
+                        <option>piece</option>
+                      </select>
+                    </label>
+                    <label>
+                      Shelf Life (days)
+                      <input type="number" value="7" />
+                    </label>
+                    <div class="btn-row">
+                      <button class="btn btn-success" type="button">Save As Next Version</button>
+                      <button class="btn" type="button" data-inline-dialog-close="catalog-version-milk">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="item" data-catalog-item data-name="pasta" data-location="pantry">
+              <button
+                class="card-toggle"
+                type="button"
+                data-card-toggle
+                aria-expanded="false"
+                aria-controls="catalog-card-pasta">
+                <div class="item-head">
+                  <div>
+                    <p class="item-title">Pasta</p>
+                    <p class="item-meta">Pantry - 500 g per package</p>
+                  </div>
+                  <div class="card-summary-end">
+                    <span class="tag">v1</span>
+                    <span class="item-chevron" aria-hidden="true">v</span>
+                  </div>
+                </div>
+              </button>
+              <div class="card-panel" id="catalog-card-pasta" data-card-panel hidden>
+                <p class="item-meta">Shelf life: 180 days from add date</p>
+                <p class="item-meta">Current version: v1 active for future stock entries</p>
+                <div class="btn-row">
+                  <button class="btn" type="button" data-inline-dialog-open="catalog-version-pasta">Manage Version</button>
+                </div>
+                <div class="inline-dialog" data-inline-dialog="catalog-version-pasta" hidden>
+                  <div class="dialog-head">
+                    <div>
+                      <p class="item-title">Create Next Version</p>
+                      <p class="item-meta">Use this when the template package size or defaults change.</p>
+                    </div>
+                    <button class="btn btn-small" type="button" data-inline-dialog-close="catalog-version-pasta">Close</button>
+                  </div>
+                  <div class="form-grid">
+                    <label>
+                      Product Name
+                      <input type="text" value="Pasta" />
+                    </label>
+                    <label>
+                      Default Location
+                      <input type="text" value="Pantry" />
+                    </label>
+                    <label>
+                      Amount Per Package
+                      <input type="number" value="500" />
+                    </label>
+                    <label>
+                      Unit
+                      <select>
+                        <option selected>g</option>
+                        <option>ml</option>
+                        <option>piece</option>
+                      </select>
+                    </label>
+                    <label>
+                      Shelf Life (days)
+                      <input type="number" value="180" />
+                    </label>
+                    <div class="btn-row">
+                      <button class="btn btn-success" type="button">Save As Next Version</button>
+                      <button class="btn" type="button" data-inline-dialog-close="catalog-version-pasta">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" data-state-panel="empty" hidden>
+          <h2>No Matching Products</h2>
+          <p class="muted">No Product Catalog items match the current name/location filters.</p>
+          <div class="btn-row">
+            <button class="btn btn-success" type="button">Add Product</button>
+            <button class="btn" type="button" data-catalog-clear>Clear Filters</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

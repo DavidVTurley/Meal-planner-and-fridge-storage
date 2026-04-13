@@ -1,6 +1,6 @@
 # Title
 
-Inventory Foundation v1 Implementation Kickoff
+My Stock Foundation v1 Implementation Kickoff
 
 # Date/time
 
@@ -8,21 +8,21 @@ Inventory Foundation v1 Implementation Kickoff
 
 # Context/request
 
-User request: "Right now lets implement it." after approving the inventory foundation implementation direction and plan-history policy.
+User request: "Right now lets implement it." after approving the My Stock foundation implementation direction and plan-history policy.
 
 # <proposed_plan>
 
 ```md
-## Inventory Foundation v1 Implementation + Codebase Style Baseline
+## My Stock Foundation v1 Implementation + Codebase Style Baseline
 
 ### Summary
 Implement Parts 1-5 end-to-end for the backend foundation using .NET 10, Clean Architecture, ProblemDetails + ETag conventions, and required domain/integration tests.
 
 ### Key execution targets
 - Scaffold solution/projects for Domain/Application/Infrastructure/API plus tests.
-- Implement default product append-only versioning and inventory item package snapshots.
+- Implement Product Catalog append-only versioning and My Stock item package snapshots.
 - Implement location normalization, freshness status rules, and manual decrement constraints.
-- Expose inventory-first API endpoints with X-User-Id scoping and If-Match/ETag concurrency checks.
+- Expose My Stock-first API endpoints with X-User-Id scoping and If-Match/ETag concurrency checks.
 - Add baseline domain/integration tests and verify build/tests.
 - Define and document codebase style conventions for ongoing development.
 ```

@@ -25,7 +25,7 @@
 
 - Use `X-User-Id` header for current user boundary in v1.
 - Errors return RFC7807 ProblemDetails.
-- Inventory write operations requiring concurrency must use `If-Match` and return/refresh `ETag`.
+- My Stock write operations requiring concurrency must use `If-Match` and return/refresh `ETag`.
 - Units are constrained to `g`, `ml`, and `piece`.
 
 ## Data Conventions
