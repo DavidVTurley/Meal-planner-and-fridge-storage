@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wireframes Hub</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script defer src="./wireframe.js"></script>
+</head>
+<body>
+  <div class="app-frame">
+    <header class="topbar">
+      <button class="btn" type="button" data-drawer-open aria-expanded="false">Menu</button>
+      <h1>Wireframe Hub</h1>
+      <span class="tag">Batch 1</span>
+    </header>
+
+    <aside class="drawer" data-drawer hidden>
+      <h2>Navigate</h2>
+      <nav>
+        <a class="drawer-link active" href="./index.html">Hub</a>
+        <a class="drawer-link" href="./today.html">Today</a>
+        <a class="drawer-link" href="./inventory-list.html">Inventory</a>
+        <a class="drawer-link" href="./meal-editor.html">Meal Editor</a>
+        <a class="drawer-link" href="./unknowns.html">Unknowns</a>
+      </nav>
+      <p class="drawer-note">Settings screen is represented as future context only.</p>
+      <button class="btn" type="button" data-drawer-close>Close</button>
+    </aside>
+    <div class="drawer-backdrop" data-drawer-backdrop data-drawer-close hidden></div>
+
+    <main class="content">
+      <section class="panel">
+        <h2>Screen State</h2>
+        <div class="state-switch" data-state-target="hub-state">
+          <button type="button" data-state="default" aria-pressed="true">Default</button>
+          <button type="button" data-state="review" aria-pressed="false">Review Notes</button>
+        </div>
+      </section>
+
+      <div data-state-group="hub-state">
+        <section class="panel" data-state-panel="default">
+          <h2>Batch 1 Screens</h2>
+          <p class="muted">Tooling-agnostic mobile wireframes with mock interactions.</p>
+          <div class="list">
+            <a class="item" href="./today.html">
+              <p class="item-title">Today</p>
+              <p class="item-meta">Urgency cards, quick actions, daily summary</p>
+            </a>
+            <a class="item" href="./inventory-list.html">
+              <p class="item-title">Inventory List</p>
+              <p class="item-meta">Search/filter shell and list actions</p>
+            </a>
+            <a class="item" href="./meal-editor.html">
+              <p class="item-title">Meal Editor</p>
+              <p class="item-meta">Known + unknown ingredient lines</p>
+            </a>
+            <a class="item" href="./unknowns.html">
+              <p class="item-title">Unknowns</p>
+              <p class="item-meta">Overview and conversion action pattern</p>
+            </a>
+          </div>
+        </section>
+
+        <section class="panel" data-state-panel="review" hidden>
+          <h2>Review Checklist</h2>
+          <div class="list">
+            <div class="item">
+              <p class="item-title">Navigation</p>
+              <p class="item-meta">Can users move between all screens via drawer?</p>
+            </div>
+            <div class="item">
+              <p class="item-title">State clarity</p>
+              <p class="item-meta">Is each alternate state clear without backend data?</p>
+            </div>
+            <div class="item">
+              <p class="item-title">Low-fi discipline</p>
+              <p class="item-meta">Layouts should stay structural, not polished branding.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

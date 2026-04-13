@@ -2,7 +2,21 @@
 
 ## 2026-04-12
 
+### Added
+- Added `apps/wireframes/AGENTS.md` with lean, enforceable project rules for tooling-agnostic low-fidelity wireframe work.
+- Added Batch 1 wireframe prototype scaffold in `apps/wireframes` with standalone low-fi HTML/CSS/JS screens for `index`, `today`, `inventory-list`, `meal-editor`, and `unknowns`.
+- Added shared wireframe behaviors for drawer navigation and per-screen default/alternate state toggles.
+- Added `apps/wireframes/STYLE_GUIDE.md` to define wireframe interaction and simplicity rules.
+
 ### Changed
+- Simplified Inventory foldout card presentation by removing nested dropdown-style header framing, switching freshness to day-based text, and removing `Last updated` detail lines.
+- Simplified Inventory wireframe cards by removing per-item `-` and `View Detail` buttons, adding tap-to-expand inline detail panels with `Edit` and `Update Amount` actions, and removing the inventory undo strip.
+- Removed ETag terminology from user-facing wireframes and replaced inventory conflict copy with user-friendly update wording.
+- Applied progressive disclosure to wireframes: advanced Inventory search/filter and Today urgent filter controls are now hidden behind reveal buttons by default and auto-close on apply/filter actions.
+- Reordered `Today` wireframe so the summary appears above urgent ingredients and now drives urgent-list filtering (`All`, `Use soon`, `Expired`).
+- Added wireframe color semantics: decrement `-` controls are red and positive confirm/create actions are green, with neutral secondary/reversal controls.
+- Updated wireframes to remove global quick-action reliance and use item-linked `-` quick decrement controls with immediate undo feedback.
+- Fixed wireframe drawer positioning so navigation stays off-canvas when closed and only appears after opening the menu.
 - Refactored `MealPlanner.Api` so task-based endpoint registrations live in separate classes for default products, inventory, meals, and unknown ingredients.
 - Slimmed `Program.cs` down to host composition, middleware, host-only routes, and endpoint registration calls.
 - Moved shared API helpers for OpenAPI setup, request header extraction, and ETag formatting into dedicated support types with no intended behavior change.

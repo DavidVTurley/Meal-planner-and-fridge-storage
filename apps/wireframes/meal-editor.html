@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meal Editor Wireframe</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script defer src="./wireframe.js"></script>
+</head>
+<body>
+  <div class="app-frame">
+    <header class="topbar">
+      <button class="btn" type="button" data-drawer-open aria-expanded="false">Menu</button>
+      <h1>Meal Editor</h1>
+      <a class="link-btn" href="./index.html">Hub</a>
+    </header>
+
+    <aside class="drawer" data-drawer hidden>
+      <h2>Navigate</h2>
+      <nav>
+        <a class="drawer-link" href="./index.html">Hub</a>
+        <a class="drawer-link" href="./today.html">Today</a>
+        <a class="drawer-link" href="./inventory-list.html">Inventory</a>
+        <a class="drawer-link active" href="./meal-editor.html">Meal Editor</a>
+        <a class="drawer-link" href="./unknowns.html">Unknowns</a>
+      </nav>
+      <button class="btn" type="button" data-drawer-close>Close</button>
+    </aside>
+    <div class="drawer-backdrop" data-drawer-backdrop data-drawer-close hidden></div>
+
+    <main class="content">
+      <section class="panel">
+        <h2>Screen State</h2>
+        <div class="state-switch" data-state-target="meal-state">
+          <button type="button" data-state="default" aria-pressed="true">Default</button>
+          <button type="button" data-state="validation" aria-pressed="false">Validation</button>
+        </div>
+      </section>
+
+      <div data-state-group="meal-state">
+        <section data-state-panel="default" class="stack">
+          <article class="panel">
+            <h2>Meal Details</h2>
+            <div class="form-grid">
+              <label>
+                Meal Name
+                <input type="text" value="Tomato Pasta" />
+              </label>
+              <div class="btn-row">
+                <button class="btn" type="button">Add Known Ingredient</button>
+                <button class="btn" type="button">Add Unknown Ingredient</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <h3>Ingredient Line 1 (Known)</h3>
+            <div class="form-grid">
+              <label>
+                Known Ingredient
+                <select>
+                  <option>Tomato Sauce (ml)</option>
+                </select>
+              </label>
+              <label>
+                Amount
+                <input type="number" value="200" />
+              </label>
+            </div>
+          </article>
+
+          <article class="panel">
+            <h3>Ingredient Line 2 (Unknown)</h3>
+            <div class="form-grid">
+              <label>
+                Display Name
+                <input type="text" value="Basil leaves" />
+              </label>
+              <label>
+                Unit
+                <select>
+                  <option>g</option>
+                  <option>ml</option>
+                  <option selected>piece</option>
+                </select>
+              </label>
+              <label>
+                Amount
+                <input type="number" value="4" />
+              </label>
+            </div>
+          </article>
+
+          <section class="panel">
+            <div class="btn-row">
+              <button class="btn btn-success" type="button">Save Meal</button>
+              <button class="btn" type="button">Cancel</button>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel" data-state-panel="validation" hidden>
+          <h2>Validation State</h2>
+          <p class="muted">Example: unknown ingredient line is missing display name.</p>
+          <div class="item">
+            <p class="item-title">Ingredient Line 2</p>
+            <p class="item-meta">Display name is required when ingredient kind is unknown.</p>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-dark" type="button">Jump To Invalid Line</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

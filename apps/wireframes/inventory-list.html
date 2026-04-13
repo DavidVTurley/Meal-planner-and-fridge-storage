@@ -1,0 +1,132 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventory Wireframe</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script defer src="./wireframe.js"></script>
+</head>
+<body>
+  <div class="app-frame">
+    <header class="topbar">
+      <button class="btn" type="button" data-drawer-open aria-expanded="false">Menu</button>
+      <h1>Inventory</h1>
+      <a class="link-btn" href="./index.html">Hub</a>
+    </header>
+
+    <aside class="drawer" data-drawer hidden>
+      <h2>Navigate</h2>
+      <nav>
+        <a class="drawer-link" href="./index.html">Hub</a>
+        <a class="drawer-link" href="./today.html">Today</a>
+        <a class="drawer-link active" href="./inventory-list.html">Inventory</a>
+        <a class="drawer-link" href="./meal-editor.html">Meal Editor</a>
+        <a class="drawer-link" href="./unknowns.html">Unknowns</a>
+      </nav>
+      <button class="btn" type="button" data-drawer-close>Close</button>
+    </aside>
+    <div class="drawer-backdrop" data-drawer-backdrop data-drawer-close hidden></div>
+
+    <main class="content">
+      <section class="panel">
+        <h2>Screen State</h2>
+        <div class="state-switch" data-state-target="inventory-state">
+          <button type="button" data-state="default" aria-pressed="true">Default</button>
+          <button type="button" data-state="conflict" aria-pressed="false">Conflict</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Search And Filter</h2>
+        <button class="btn" type="button" data-panel-toggle="inventory-advanced" aria-expanded="false" aria-controls="inventory-advanced-panel">
+          Search & Filter
+        </button>
+        <div class="advanced-panel" id="inventory-advanced-panel" data-panel="inventory-advanced" hidden>
+          <div class="form-grid">
+            <label>
+              Location
+              <input type="text" placeholder="Fridge" />
+            </label>
+            <label>
+              Search
+              <input type="text" placeholder="milk" />
+            </label>
+            <div class="btn-row">
+              <button class="btn btn-success" type="button" data-panel-apply="inventory-advanced">Apply Filters</button>
+              <button class="btn" type="button">Clear</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div data-state-group="inventory-state">
+        <section data-state-panel="default" class="panel">
+          <h2>Inventory Items</h2>
+          <div class="list">
+            <div class="item" data-item-id="inventory-milk" data-item-label="Milk" data-context="inventory" data-unit="ml" data-amount="750">
+              <button
+                class="card-toggle"
+                type="button"
+                data-card-toggle
+                aria-expanded="false"
+                aria-controls="inventory-card-milk">
+                <div class="item-head">
+                  <p class="item-title">Milk - <span data-amount-label>750 ml</span> remaining</p>
+                  <span class="item-chevron" aria-hidden="true">v</span>
+                </div>
+                <p class="item-meta">Fridge</p>
+              </button>
+              <div class="card-panel" id="inventory-card-milk" data-card-panel hidden>
+                <p class="item-meta">Freshness: 2 days left</p>
+                <p class="item-meta">Amount per package snapshot: 1000 ml</p>
+                <div class="btn-row">
+                  <button class="btn" type="button">Edit</button>
+                  <button class="btn btn-success" type="button">Update Amount</button>
+                </div>
+              </div>
+            </div>
+            <div class="item" data-item-id="inventory-pasta" data-item-label="Pasta" data-context="inventory" data-unit="g" data-amount="300">
+              <button
+                class="card-toggle"
+                type="button"
+                data-card-toggle
+                aria-expanded="false"
+                aria-controls="inventory-card-pasta">
+                <div class="item-head">
+                  <p class="item-title">Pasta - <span data-amount-label>300 g</span> remaining</p>
+                  <span class="item-chevron" aria-hidden="true">v</span>
+                </div>
+                <p class="item-meta">Pantry</p>
+              </button>
+              <div class="card-panel" id="inventory-card-pasta" data-card-panel hidden>
+                <p class="item-meta">Freshness: 1 day overdue</p>
+                <p class="item-meta">Amount per package snapshot: 500 g</p>
+                <div class="btn-row">
+                  <button class="btn" type="button">Edit</button>
+                  <button class="btn btn-success" type="button">Update Amount</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" data-state-panel="conflict" hidden>
+          <h2>Update Conflict</h2>
+          <p class="muted">Mock stale update state after changes from another action/session.</p>
+          <div class="item">
+            <p class="item-title">Latest server value: 640 ml</p>
+            <p class="item-meta">Ask user to refresh and retry decrement.</p>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-dark" type="button">Refresh Item</button>
+            <button class="btn" type="button">Retry Decrement</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
+
+

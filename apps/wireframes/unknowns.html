@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unknowns Wireframe</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script defer src="./wireframe.js"></script>
+</head>
+<body>
+  <div class="app-frame">
+    <header class="topbar">
+      <button class="btn" type="button" data-drawer-open aria-expanded="false">Menu</button>
+      <h1>Unknowns</h1>
+      <a class="link-btn" href="./index.html">Hub</a>
+    </header>
+
+    <aside class="drawer" data-drawer hidden>
+      <h2>Navigate</h2>
+      <nav>
+        <a class="drawer-link" href="./index.html">Hub</a>
+        <a class="drawer-link" href="./today.html">Today</a>
+        <a class="drawer-link" href="./inventory-list.html">Inventory</a>
+        <a class="drawer-link" href="./meal-editor.html">Meal Editor</a>
+        <a class="drawer-link active" href="./unknowns.html">Unknowns</a>
+      </nav>
+      <button class="btn" type="button" data-drawer-close>Close</button>
+    </aside>
+    <div class="drawer-backdrop" data-drawer-backdrop data-drawer-close hidden></div>
+
+    <main class="content">
+      <section class="panel">
+        <h2>Screen State</h2>
+        <div class="state-switch" data-state-target="unknowns-state">
+          <button type="button" data-state="default" aria-pressed="true">Default</button>
+          <button type="button" data-state="empty" aria-pressed="false">Empty</button>
+        </div>
+      </section>
+
+      <div data-state-group="unknowns-state">
+        <section data-state-panel="default" class="stack">
+          <article class="panel">
+            <h2>Unknown Ingredient Overview</h2>
+            <div class="list">
+              <div class="item">
+                <p class="item-title">Basil leaves</p>
+                <p class="item-meta">Unit: piece · Used in: Tomato Pasta</p>
+              </div>
+              <div class="item">
+                <p class="item-title">Chef sauce mix</p>
+                <p class="item-meta">Unit: ml · Used in: Stir Fry Bowl</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <h2>Convert Unknown</h2>
+            <div class="form-grid">
+              <label>
+                Unknown Ingredient
+                <select>
+                  <option>Basil leaves</option>
+                </select>
+              </label>
+              <label>
+                Convert To Default Product
+                <select>
+                  <option>Basil (piece)</option>
+                </select>
+              </label>
+              <div class="btn-row">
+                <button class="btn btn-success" type="button">Convert</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel" data-state-panel="empty" hidden>
+          <h2>No Unknown Ingredients</h2>
+          <p class="muted">This state appears after all unknowns are converted or removed.</p>
+          <div class="btn-row">
+            <a class="btn btn-success" href="./meal-editor.html">Create Meal</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
