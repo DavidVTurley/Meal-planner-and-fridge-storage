@@ -125,6 +125,170 @@ function formatAmount(value) {
   return Number.isInteger(rounded) ? String(rounded) : String(rounded);
 }
 
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function readStore(key) {
+  try {
+    const raw = window.sessionStorage.getItem(key);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStore(key, value) {
+  try {
+    window.sessionStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Ignore storage failures in the wireframe prototype.
+  }
+}
+
+function buildCatalogCardMarkup(product) {
+  const slug = slugify(product.name || "product");
+  const cardId = `catalog-card-${slug}-${product.version}`;
+  const safeName = product.name || "New product";
+  const safeLocation = product.location || "Pantry";
+  const safeAmount = product.amount || "1";
+  const safeUnit = product.unit || "piece";
+  const safeShelfLife = product.shelfLife || "7";
+
+  return `
+    <div class="item" data-catalog-item data-name="${safeName.toLowerCase()}" data-location="${safeLocation.toLowerCase()}">
+      <button
+        class="card-toggle"
+        type="button"
+        data-card-toggle
+        aria-expanded="false"
+        aria-controls="${cardId}">
+        <div class="item-head">
+          <div>
+            <p class="item-title">${safeName}</p>
+            <p class="item-meta">${safeLocation} - ${safeAmount} ${safeUnit} per package</p>
+          </div>
+          <div class="card-summary-end">
+            <span class="tag">v${product.version}</span>
+            <span class="item-chevron" aria-hidden="true">v</span>
+          </div>
+        </div>
+      </button>
+      <div class="card-panel" id="${cardId}" data-card-panel hidden>
+        <p class="item-meta">Shelf life: ${safeShelfLife} days from add date</p>
+        <p class="item-meta">Current version: v${product.version} active for future stock entries</p>
+        <div class="btn-row">
+          <button
+            class="btn"
+            type="button"
+            data-product-dialog-open="version"
+            data-dialog-context="catalog"
+            data-dialog-success-target="catalog"
+            data-dialog-success-message="Next product version saved."
+            data-prefill-name="${safeName}"
+            data-prefill-location="${safeLocation}"
+            data-prefill-amount="${safeAmount}"
+            data-prefill-unit="${safeUnit}"
+            data-prefill-shelf-life="${safeShelfLife}">Manage Version</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function addCatalogProductToList(product) {
+  const list = document.querySelector("[data-catalog-list]");
+  if (!list) {
+    return;
+  }
+
+  list.insertAdjacentHTML("beforeend", buildCatalogCardMarkup(product));
+  const newToggle = list.lastElementChild?.querySelector("[data-card-toggle]");
+  bindCardToggle(newToggle);
+
+  const stateButtons = document.querySelectorAll('[data-state-target="catalog-state"] [data-state]');
+  const statePanels = document.querySelectorAll('[data-state-group="catalog-state"] [data-state-panel]');
+  if (stateButtons.length > 0 && statePanels.length > 0) {
+    stateButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", button.getAttribute("data-state") === "default" ? "true" : "false");
+    });
+    statePanels.forEach((panel) => {
+      panel.hidden = panel.getAttribute("data-state-panel") !== "default";
+    });
+  }
+}
+
+function hydrateCreatedCatalogProducts() {
+  const list = document.querySelector("[data-catalog-list]");
+  if (!list) {
+    return;
+  }
+
+  const createdProducts = readStore("wireframe-created-products");
+  createdProducts.forEach((product) => {
+    addCatalogProductToList(product);
+  });
+}
+
+function removeSelectedUnknownItems() {
+  const selectedItems = getUnknownSelection();
+  if (selectedItems.length === 0) {
+    return [];
+  }
+
+  const removedIds = selectedItems
+    .map((item) => item.getAttribute("data-unknown-id"))
+    .filter((value) => Boolean(value));
+
+  selectedItems.forEach((item) => {
+    item.remove();
+  });
+
+  const removedStore = readStore("wireframe-removed-unknowns");
+  const merged = [...new Set([...removedStore, ...removedIds])];
+  writeStore("wireframe-removed-unknowns", merged);
+  return removedIds;
+}
+
+function hydrateUnknownItems() {
+  const removedIds = new Set(readStore("wireframe-removed-unknowns"));
+  const items = Array.from(document.querySelectorAll("[data-unknown-item]"));
+  if (items.length === 0) {
+    return;
+  }
+
+  items.forEach((item) => {
+    const id = item.getAttribute("data-unknown-id");
+    if (id && removedIds.has(id)) {
+      item.remove();
+    }
+  });
+}
+
+function syncUnknownStatePanels() {
+  const items = Array.from(document.querySelectorAll("[data-unknown-item]"));
+  const defaultPanel = document.querySelector('[data-state-group="unknowns-state"] [data-state-panel="default"]');
+  const emptyPanel = document.querySelector('[data-state-group="unknowns-state"] [data-state-panel="empty"]');
+  const buttons = document.querySelectorAll('[data-state-target="unknowns-state"] [data-state]');
+
+  if (!defaultPanel || !emptyPanel || buttons.length === 0) {
+    return;
+  }
+
+  const hasItems = items.length > 0;
+  defaultPanel.hidden = !hasItems;
+  emptyPanel.hidden = hasItems;
+
+  buttons.forEach((button) => {
+    const wantsDefault = button.getAttribute("data-state") === "default";
+    button.setAttribute("aria-pressed", hasItems === wantsDefault ? "true" : "false");
+  });
+}
+
 function setupAdvancedPanels() {
   const toggles = document.querySelectorAll("[data-panel-toggle]");
 
@@ -176,35 +340,44 @@ function setupAdvancedPanels() {
   });
 }
 
+function bindCardToggle(toggle) {
+  if (!toggle || toggle.hasAttribute("data-card-toggle-bound")) {
+    return;
+  }
+
+  const item = toggle.closest(".item");
+  const panelId = toggle.getAttribute("aria-controls");
+  if (!item || !panelId) {
+    return;
+  }
+
+  const panel = document.getElementById(panelId);
+  if (!panel || panel.getAttribute("data-card-panel") === null) {
+    return;
+  }
+
+  panel.hidden = true;
+  toggle.setAttribute("aria-expanded", "false");
+  item.removeAttribute("data-card-expanded");
+  toggle.setAttribute("data-card-toggle-bound", "true");
+
+  toggle.addEventListener("click", () => {
+    const isOpen = !panel.hidden;
+    panel.hidden = isOpen;
+    toggle.setAttribute("aria-expanded", isOpen ? "false" : "true");
+
+    if (isOpen) {
+      item.removeAttribute("data-card-expanded");
+    } else {
+      item.setAttribute("data-card-expanded", "true");
+    }
+  });
+}
+
 function setupCardExpansion() {
   const toggles = document.querySelectorAll("[data-card-toggle]");
   toggles.forEach((toggle) => {
-    const item = toggle.closest(".item");
-    const panelId = toggle.getAttribute("aria-controls");
-    if (!item || !panelId) {
-      return;
-    }
-
-    const panel = document.getElementById(panelId);
-    if (!panel || panel.getAttribute("data-card-panel") === null) {
-      return;
-    }
-
-    panel.hidden = true;
-    toggle.setAttribute("aria-expanded", "false");
-    item.removeAttribute("data-card-expanded");
-
-    toggle.addEventListener("click", () => {
-      const isOpen = !panel.hidden;
-      panel.hidden = isOpen;
-      toggle.setAttribute("aria-expanded", isOpen ? "false" : "true");
-
-      if (isOpen) {
-        item.removeAttribute("data-card-expanded");
-      } else {
-        item.setAttribute("data-card-expanded", "true");
-      }
-    });
+    bindCardToggle(toggle);
   });
 }
 
@@ -494,6 +667,31 @@ function setupSharedProductDialog() {
   saveButton.addEventListener("click", () => {
     closeDialog();
     if (activeConfig) {
+      const product = {
+        name: nameInput.value.trim() || activeConfig.prefill.name || "New product",
+        location: locationInput.value.trim() || activeConfig.prefill.location || "Pantry",
+        amount: amountInput.value.trim() || activeConfig.prefill.amount || "1",
+        unit: unitInput.value || activeConfig.prefill.unit || "piece",
+        shelfLife: shelfLifeInput.value.trim() || activeConfig.prefill.shelfLife || "7",
+        version: activeConfig.mode === "version" ? "next" : 1,
+      };
+
+      if (activeConfig.mode === "create") {
+        const createdProducts = readStore("wireframe-created-products");
+        createdProducts.push(product);
+        writeStore("wireframe-created-products", createdProducts);
+      }
+
+      if (activeConfig.mode === "create" && activeConfig.context === "catalog") {
+        addCatalogProductToList(product);
+      }
+
+      if (activeConfig.mode === "create" && activeConfig.context === "unknowns") {
+        removeSelectedUnknownItems();
+        setupUnknownSelection();
+        syncUnknownStatePanels();
+      }
+
       showSuccess(activeConfig.successTarget, activeConfig.successMessage);
     }
   });
@@ -717,12 +915,15 @@ function setupQuickDecrement() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  hydrateCreatedCatalogProducts();
+  hydrateUnknownItems();
   setupDrawer();
   setupStateToggles();
   setupTabs();
   setupAdvancedPanels();
   setupCardExpansion();
   setupUnknownSelection();
+  syncUnknownStatePanels();
   setupSharedProductDialog();
   setupCatalogFilters();
   setupUrgentFilters();

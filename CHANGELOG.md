@@ -3,6 +3,7 @@
 ## 2026-04-13
 
 ### Changed
+- Extended the wireframe mock data flow so creating a product appends it to the Product Catalog list and creating from Unknowns removes the selected unknown rows, with session-scoped persistence across screens.
 - Cleaned up the wireframe dialog architecture by moving create-product and Product Catalog version flows onto one shared injected dialog pattern, made Unknowns selection state interactive, and tightened active hub/style-guide wording to match the richer interaction model.
 - Added a reusable centered create-product dialog pattern, wired `Add Product` in `Product Catalog` to open it, updated `Unknowns` to create products in-place with source-context summary and return-to-screen success feedback, and simplified the `Action List` unknowns entry to link into the dedicated `Unknowns` page.
 - Reworked the `Unknowns` wireframe into a batch-conversion flow with the action panel above the list, always-visible multi-select checkboxes, batch convert-to-catalog behavior, and a `Create New Product` route into `Product Catalog`.
