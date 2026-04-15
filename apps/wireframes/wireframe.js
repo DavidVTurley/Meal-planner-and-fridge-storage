@@ -208,81 +208,165 @@ function setupCardExpansion() {
   });
 }
 
-function setupInlineDialogs() {
-  const getDialogs = (name) => document.querySelectorAll(`[data-inline-dialog="${name}"]`);
-
-  const closeDialog = (name) => {
-    getDialogs(name).forEach((dialog) => {
-      dialog.hidden = true;
-    });
-  };
-
-  const openButtons = document.querySelectorAll("[data-inline-dialog-open]");
-  openButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const name = button.getAttribute("data-inline-dialog-open");
-      if (!name) {
-        return;
-      }
-
-      const item = button.closest(".item");
-      if (!item) {
-        return;
-      }
-
-      item.querySelectorAll("[data-inline-dialog]").forEach((dialog) => {
-        dialog.hidden = true;
-      });
-
-      const dialog = item.querySelector(`[data-inline-dialog="${name}"]`);
-      if (!dialog) {
-        return;
-      }
-
-      dialog.hidden = false;
-    });
-  });
-
-  const closeButtons = document.querySelectorAll("[data-inline-dialog-close]");
-  closeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const name = button.getAttribute("data-inline-dialog-close");
-      if (!name) {
-        return;
-      }
-
-      closeDialog(name);
-    });
+function getUnknownSelection() {
+  return Array.from(document.querySelectorAll("[data-unknown-item]")).filter((item) => {
+    const checkbox = item.querySelector('input[type="checkbox"]');
+    return checkbox?.checked;
   });
 }
 
-function setupCreateProductDialog() {
-  const dialog = document.querySelector("[data-create-dialog]");
-  const backdrop = document.querySelector("[data-create-dialog-backdrop]");
-  const openButtons = document.querySelectorAll("[data-create-product-open]");
-  const closeButtons = document.querySelectorAll("[data-create-product-close]");
-  const saveButton = document.querySelector("[data-create-product-save]");
-  const contextText = document.querySelector("[data-create-dialog-context]");
-  const sourceSummary = document.querySelector("[data-create-source-summary]");
-  const sourceList = document.querySelector("[data-create-source-list]");
-  const successMessages = document.querySelectorAll("[data-create-success]");
+function setupUnknownSelection() {
+  const items = Array.from(document.querySelectorAll("[data-unknown-item]"));
+  const countLabel = document.querySelector("[data-unknown-selected-count]");
+  const actionButtons = document.querySelectorAll("[data-unknown-requires-selection]");
 
-  if (!dialog || !backdrop || openButtons.length === 0 || !saveButton) {
+  if (items.length === 0) {
     return;
   }
 
-  let activeContext = "catalog";
+  const syncSelectionState = () => {
+    const selectedItems = getUnknownSelection();
 
-  const setSuccess = (context) => {
-    successMessages.forEach((message) => {
-      const visible = message.getAttribute("data-create-success") === context;
-      message.hidden = !visible;
+    items.forEach((item) => {
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      const isSelected = checkbox?.checked === true;
+      if (isSelected) {
+        item.setAttribute("data-selected", "true");
+      } else {
+        item.removeAttribute("data-selected");
+      }
+    });
+
+    if (countLabel) {
+      const count = selectedItems.length;
+      countLabel.textContent = `${count} selected line${count === 1 ? "" : "s"} will map to one Product Catalog item.`;
+    }
+
+    actionButtons.forEach((button) => {
+      button.disabled = selectedItems.length === 0;
     });
   };
+
+  items.forEach((item) => {
+    const checkbox = item.querySelector('input[type="checkbox"]');
+    if (!checkbox) {
+      return;
+    }
+
+    checkbox.addEventListener("change", syncSelectionState);
+  });
+
+  const clearButton = document.querySelector("[data-unknown-clear-selection]");
+  if (clearButton) {
+    clearButton.addEventListener("click", () => {
+      items.forEach((item) => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+          checkbox.checked = false;
+        }
+      });
+      syncSelectionState();
+    });
+  }
+
+  syncSelectionState();
+}
+
+function createSharedDialog() {
+  const backdrop = document.createElement("div");
+  backdrop.className = "dialog-backdrop";
+  backdrop.hidden = true;
+
+  const dialog = document.createElement("section");
+  dialog.className = "overlay-dialog";
+  dialog.hidden = true;
+  dialog.innerHTML = `
+    <div class="dialog-head">
+      <div>
+        <h2 data-shared-dialog-title>Create Product</h2>
+        <p class="muted" data-shared-dialog-subtitle>Set up a new reusable Product Catalog item.</p>
+      </div>
+      <button class="btn btn-small" type="button" data-shared-dialog-close>Close</button>
+    </div>
+    <div class="source-summary" data-shared-dialog-source hidden>
+      <p class="item-title">Source Unknowns</p>
+      <div class="list compact-list" data-shared-dialog-source-list></div>
+    </div>
+    <div class="form-grid">
+      <label>
+        Product Name
+        <input type="text" data-shared-dialog-name />
+      </label>
+      <label>
+        Default Location
+        <input type="text" data-shared-dialog-location />
+      </label>
+      <label>
+        Amount Per Package
+        <input type="number" data-shared-dialog-amount />
+      </label>
+      <label>
+        Unit
+        <select data-shared-dialog-unit>
+          <option>g</option>
+          <option>ml</option>
+          <option>piece</option>
+        </select>
+      </label>
+      <label>
+        Shelf Life (days)
+        <input type="number" data-shared-dialog-shelf-life />
+      </label>
+      <div class="btn-row">
+        <button class="btn btn-success" type="button" data-shared-dialog-save>Save</button>
+        <button class="btn" type="button" data-shared-dialog-close>Cancel</button>
+      </div>
+    </div>
+  `;
+
+  document.body.append(backdrop, dialog);
+  return { backdrop, dialog };
+}
+
+function setupSharedProductDialog() {
+  const openButtons = Array.from(document.querySelectorAll("[data-product-dialog-open]"));
+  const successMessages = Array.from(document.querySelectorAll("[data-dialog-success]"));
+
+  if (openButtons.length === 0) {
+    return;
+  }
+
+  const { backdrop, dialog } = createSharedDialog();
+  const title = dialog.querySelector("[data-shared-dialog-title]");
+  const subtitle = dialog.querySelector("[data-shared-dialog-subtitle]");
+  const sourceSummary = dialog.querySelector("[data-shared-dialog-source]");
+  const sourceList = dialog.querySelector("[data-shared-dialog-source-list]");
+  const nameInput = dialog.querySelector("[data-shared-dialog-name]");
+  const locationInput = dialog.querySelector("[data-shared-dialog-location]");
+  const amountInput = dialog.querySelector("[data-shared-dialog-amount]");
+  const unitInput = dialog.querySelector("[data-shared-dialog-unit]");
+  const shelfLifeInput = dialog.querySelector("[data-shared-dialog-shelf-life]");
+  const saveButton = dialog.querySelector("[data-shared-dialog-save]");
+  const closeButtons = dialog.querySelectorAll("[data-shared-dialog-close]");
+
+  let activeConfig = null;
 
   const clearSuccess = () => {
     successMessages.forEach((message) => {
       message.hidden = true;
+    });
+  };
+
+  const showSuccess = (target, messageText) => {
+    successMessages.forEach((message) => {
+      const visible = message.getAttribute("data-dialog-success") === target;
+      message.hidden = !visible;
+      if (visible && messageText) {
+        const label = message.querySelector(".success-text");
+        if (label) {
+          label.textContent = messageText;
+        }
+      }
     });
   };
 
@@ -291,44 +375,111 @@ function setupCreateProductDialog() {
     backdrop.hidden = true;
   };
 
-  const updateDialogContext = (context) => {
-    activeContext = context;
-    clearSuccess();
+  const setFields = (config) => {
+    nameInput.value = config.prefill.name ?? "";
+    locationInput.value = config.prefill.location ?? "";
+    amountInput.value = config.prefill.amount ?? "";
+    unitInput.value = config.prefill.unit ?? "piece";
+    shelfLifeInput.value = config.prefill.shelfLife ?? "";
+  };
 
-    if (context === "unknowns") {
-      if (contextText) {
-        contextText.textContent = "Create a reusable Product Catalog item from selected unknowns.";
-      }
-
-      if (sourceSummary && sourceList) {
-        const items = Array.from(document.querySelectorAll('[data-selected="true"][data-create-source-item]'));
-        sourceSummary.hidden = false;
-        sourceList.innerHTML = "";
-
-        items.forEach((item) => {
-          const line = document.createElement("div");
-          line.className = "item item-body compact-item";
-          line.textContent = item.getAttribute("data-create-source-item") ?? "";
-          sourceList.appendChild(line);
-        });
-      }
-
+  const setSources = (sources) => {
+    if (!sources || sources.length === 0) {
+      sourceSummary.hidden = true;
+      sourceList.innerHTML = "";
       return;
     }
 
-    if (contextText) {
-      contextText.textContent = "Set up a new reusable Product Catalog item.";
+    sourceSummary.hidden = false;
+    sourceList.innerHTML = "";
+
+    sources.forEach((source) => {
+      const row = document.createElement("div");
+      row.className = "item item-body compact-item";
+      row.textContent = source;
+      sourceList.appendChild(row);
+    });
+  };
+
+  const buildConfig = (button) => {
+    const mode = button.getAttribute("data-product-dialog-open") ?? "create";
+    const context = button.getAttribute("data-dialog-context") ?? "catalog";
+    const successTarget = button.getAttribute("data-dialog-success-target") ?? context;
+
+    if (mode === "version") {
+      return {
+        mode,
+        context,
+        successTarget,
+        successMessage: button.getAttribute("data-dialog-success-message") ?? "Next product version saved.",
+        title: "Create Next Version",
+        subtitle: "Editing this template creates a new version for future entries only.",
+        saveLabel: "Save As Next Version",
+        prefill: {
+          name: button.getAttribute("data-prefill-name") ?? "",
+          location: button.getAttribute("data-prefill-location") ?? "",
+          amount: button.getAttribute("data-prefill-amount") ?? "",
+          unit: button.getAttribute("data-prefill-unit") ?? "piece",
+          shelfLife: button.getAttribute("data-prefill-shelf-life") ?? "",
+        },
+        sources: [],
+      };
     }
 
-    if (sourceSummary) {
-      sourceSummary.hidden = true;
+    if (context === "unknowns") {
+      const selectedItems = getUnknownSelection();
+      const firstSelected = selectedItems[0];
+      const prefillName = firstSelected?.getAttribute("data-unknown-name") ?? "";
+      const prefillUnit = firstSelected?.getAttribute("data-unknown-unit") ?? "piece";
+      const sources = selectedItems.map((item) => item.getAttribute("data-create-source-item") ?? "");
+
+      return {
+        mode,
+        context,
+        successTarget,
+        successMessage: button.getAttribute("data-dialog-success-message") ?? "Product created from selected unknowns.",
+        title: "Create Product",
+        subtitle: "Create a reusable Product Catalog item from selected unknowns.",
+        saveLabel: "Create Product",
+        prefill: {
+          name: prefillName,
+          location: "",
+          amount: "",
+          unit: prefillUnit,
+          shelfLife: "",
+        },
+        sources,
+      };
     }
+
+    return {
+      mode,
+      context,
+      successTarget,
+      successMessage: button.getAttribute("data-dialog-success-message") ?? "Product created.",
+      title: "Create Product",
+      subtitle: "Set up a new reusable Product Catalog item.",
+      saveLabel: "Create Product",
+      prefill: {
+        name: "",
+        location: "",
+        amount: "",
+        unit: "piece",
+        shelfLife: "",
+      },
+      sources: [],
+    };
   };
 
   openButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const context = button.getAttribute("data-create-product-open") ?? "catalog";
-      updateDialogContext(context);
+      activeConfig = buildConfig(button);
+      clearSuccess();
+      title.textContent = activeConfig.title;
+      subtitle.textContent = activeConfig.subtitle;
+      saveButton.textContent = activeConfig.saveLabel;
+      setFields(activeConfig);
+      setSources(activeConfig.sources);
       dialog.hidden = false;
       backdrop.hidden = false;
     });
@@ -342,7 +493,9 @@ function setupCreateProductDialog() {
 
   saveButton.addEventListener("click", () => {
     closeDialog();
-    setSuccess(activeContext);
+    if (activeConfig) {
+      showSuccess(activeConfig.successTarget, activeConfig.successMessage);
+    }
   });
 }
 
@@ -569,8 +722,8 @@ window.addEventListener("DOMContentLoaded", () => {
   setupTabs();
   setupAdvancedPanels();
   setupCardExpansion();
-  setupInlineDialogs();
-  setupCreateProductDialog();
+  setupUnknownSelection();
+  setupSharedProductDialog();
   setupCatalogFilters();
   setupUrgentFilters();
   setupQuickDecrement();

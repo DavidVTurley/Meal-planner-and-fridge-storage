@@ -3,6 +3,7 @@
 ## 2026-04-13
 
 ### Changed
+- Cleaned up the wireframe dialog architecture by moving create-product and Product Catalog version flows onto one shared injected dialog pattern, made Unknowns selection state interactive, and tightened active hub/style-guide wording to match the richer interaction model.
 - Added a reusable centered create-product dialog pattern, wired `Add Product` in `Product Catalog` to open it, updated `Unknowns` to create products in-place with source-context summary and return-to-screen success feedback, and simplified the `Action List` unknowns entry to link into the dedicated `Unknowns` page.
 - Reworked the `Unknowns` wireframe into a batch-conversion flow with the action panel above the list, always-visible multi-select checkboxes, batch convert-to-catalog behavior, and a `Create New Product` route into `Product Catalog`.
 - Renamed the `Today` wireframe to `Action List`, moved it to `apps/wireframes/action-list.html`, added `Urgent Ingredients` and `Unknowns` tabs, and updated wireframe navigation to point at the renamed screen.

@@ -44,11 +44,11 @@
             <h2>Catalog Actions</h2>
             <p class="muted">Reusable product templates for future My Stock entries.</p>
           </div>
-          <button class="btn btn-success" type="button" data-create-product-open="catalog">Add Product</button>
+          <button class="btn btn-success" type="button" data-product-dialog-open="create" data-dialog-context="catalog" data-dialog-success-target="catalog" data-dialog-success-message="Product created.">Add Product</button>
         </div>
       </section>
 
-      <section class="success-strip" data-create-success="catalog" hidden>
+      <section class="success-strip" data-dialog-success="catalog" hidden>
         <p class="success-text">Product created.</p>
       </section>
 
@@ -101,46 +101,7 @@
                 <p class="item-meta">Shelf life: 7 days from add date</p>
                 <p class="item-meta">Current version: v3 active for future stock entries</p>
                 <div class="btn-row">
-                  <button class="btn" type="button" data-inline-dialog-open="catalog-version-milk">Manage Version</button>
-                </div>
-                <div class="inline-dialog" data-inline-dialog="catalog-version-milk" hidden>
-                  <div class="dialog-head">
-                    <div>
-                      <p class="item-title">Create Next Version</p>
-                      <p class="item-meta">Editing this template creates v4 for future entries only.</p>
-                    </div>
-                    <button class="btn btn-small" type="button" data-inline-dialog-close="catalog-version-milk">Close</button>
-                  </div>
-                  <div class="form-grid">
-                    <label>
-                      Product Name
-                      <input type="text" value="Milk" />
-                    </label>
-                    <label>
-                      Default Location
-                      <input type="text" value="Fridge" />
-                    </label>
-                    <label>
-                      Amount Per Package
-                      <input type="number" value="1000" />
-                    </label>
-                    <label>
-                      Unit
-                      <select>
-                        <option>g</option>
-                        <option selected>ml</option>
-                        <option>piece</option>
-                      </select>
-                    </label>
-                    <label>
-                      Shelf Life (days)
-                      <input type="number" value="7" />
-                    </label>
-                    <div class="btn-row">
-                      <button class="btn btn-success" type="button">Save As Next Version</button>
-                      <button class="btn" type="button" data-inline-dialog-close="catalog-version-milk">Cancel</button>
-                    </div>
-                  </div>
+                  <button class="btn" type="button" data-product-dialog-open="version" data-dialog-context="catalog" data-dialog-success-target="catalog" data-dialog-success-message="Next product version saved." data-prefill-name="Milk" data-prefill-location="Fridge" data-prefill-amount="1000" data-prefill-unit="ml" data-prefill-shelf-life="7">Manage Version</button>
                 </div>
               </div>
             </div>
@@ -167,46 +128,7 @@
                 <p class="item-meta">Shelf life: 180 days from add date</p>
                 <p class="item-meta">Current version: v1 active for future stock entries</p>
                 <div class="btn-row">
-                  <button class="btn" type="button" data-inline-dialog-open="catalog-version-pasta">Manage Version</button>
-                </div>
-                <div class="inline-dialog" data-inline-dialog="catalog-version-pasta" hidden>
-                  <div class="dialog-head">
-                    <div>
-                      <p class="item-title">Create Next Version</p>
-                      <p class="item-meta">Use this when the template package size or defaults change.</p>
-                    </div>
-                    <button class="btn btn-small" type="button" data-inline-dialog-close="catalog-version-pasta">Close</button>
-                  </div>
-                  <div class="form-grid">
-                    <label>
-                      Product Name
-                      <input type="text" value="Pasta" />
-                    </label>
-                    <label>
-                      Default Location
-                      <input type="text" value="Pantry" />
-                    </label>
-                    <label>
-                      Amount Per Package
-                      <input type="number" value="500" />
-                    </label>
-                    <label>
-                      Unit
-                      <select>
-                        <option selected>g</option>
-                        <option>ml</option>
-                        <option>piece</option>
-                      </select>
-                    </label>
-                    <label>
-                      Shelf Life (days)
-                      <input type="number" value="180" />
-                    </label>
-                    <div class="btn-row">
-                      <button class="btn btn-success" type="button">Save As Next Version</button>
-                      <button class="btn" type="button" data-inline-dialog-close="catalog-version-pasta">Cancel</button>
-                    </div>
-                  </div>
+                  <button class="btn" type="button" data-product-dialog-open="version" data-dialog-context="catalog" data-dialog-success-target="catalog" data-dialog-success-message="Next product version saved." data-prefill-name="Pasta" data-prefill-location="Pantry" data-prefill-amount="500" data-prefill-unit="g" data-prefill-shelf-life="180">Manage Version</button>
                 </div>
               </div>
             </div>
@@ -217,56 +139,11 @@
           <h2>No Matching Products</h2>
           <p class="muted">No Product Catalog items match the current name/location filters.</p>
           <div class="btn-row">
-            <button class="btn btn-success" type="button" data-create-product-open="catalog">Add Product</button>
+            <button class="btn btn-success" type="button" data-product-dialog-open="create" data-dialog-context="catalog" data-dialog-success-target="catalog" data-dialog-success-message="Product created.">Add Product</button>
             <button class="btn" type="button" data-catalog-clear>Clear Filters</button>
           </div>
         </section>
       </div>
-
-      <div class="dialog-backdrop" data-create-dialog-backdrop hidden></div>
-      <section class="overlay-dialog" data-create-dialog hidden>
-        <div class="dialog-head">
-          <div>
-            <h2>Create Product</h2>
-            <p class="muted" data-create-dialog-context>Set up a new reusable Product Catalog item.</p>
-          </div>
-          <button class="btn btn-small" type="button" data-create-product-close>Close</button>
-        </div>
-        <div class="source-summary" data-create-source-summary hidden>
-          <p class="item-title">Source Unknowns</p>
-          <div class="list compact-list" data-create-source-list></div>
-        </div>
-        <div class="form-grid">
-          <label>
-            Product Name
-            <input type="text" placeholder="Fresh basil" data-create-product-name />
-          </label>
-          <label>
-            Default Location
-            <input type="text" placeholder="Fridge" data-create-product-location />
-          </label>
-          <label>
-            Amount Per Package
-            <input type="number" placeholder="1" data-create-product-amount />
-          </label>
-          <label>
-            Unit
-            <select data-create-product-unit>
-              <option>g</option>
-              <option>ml</option>
-              <option selected>piece</option>
-            </select>
-          </label>
-          <label>
-            Shelf Life (days)
-            <input type="number" placeholder="7" data-create-product-shelf-life />
-          </label>
-          <div class="btn-row">
-            <button class="btn btn-success" type="button" data-create-product-save>Create Product</button>
-            <button class="btn" type="button" data-create-product-close>Cancel</button>
-          </div>
-        </div>
-      </section>
     </main>
   </div>
 </body>

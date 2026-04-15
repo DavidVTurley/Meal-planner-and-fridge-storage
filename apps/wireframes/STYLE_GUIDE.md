@@ -25,9 +25,10 @@
 - Unknowns should support always-visible multi-select for batch resolution.
 - Unknowns batch actions should sit above the list they act on.
 - Batch conversion should support mapping multiple selected rows to one Product Catalog item or routing into Product Catalog for new-item creation.
-- Reusable create-product flows should use a centered overlay dialog instead of routing away from the current screen.
+- Reusable create-product and version-management flows should use one centered overlay dialog system instead of page-specific dialog copies or route-away flows.
 - The create-product dialog should return users to the screen that opened it and show lightweight success feedback there.
 - When opened from Unknowns, the create-product dialog should show selected unknown rows as source context.
+- Unknowns selection state must drive selected styling, source context, and action availability.
 - Product Catalog name/location filters should stay hidden behind a reveal button by default.
 
 ## Color Semantics

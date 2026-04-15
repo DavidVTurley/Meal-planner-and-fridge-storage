@@ -44,9 +44,9 @@
             <div class="panel-head">
               <div>
                 <h2>Convert Unknowns</h2>
-                <p class="muted">2 selected lines will map to one Product Catalog item.</p>
+                <p class="muted" data-unknown-selected-count>0 selected lines will map to one Product Catalog item.</p>
               </div>
-              <button class="btn" type="button">Clear Selection</button>
+              <button class="btn" type="button" data-unknown-clear-selection>Clear Selection</button>
             </div>
             <div class="form-grid">
               <label>
@@ -57,20 +57,20 @@
                 </select>
               </label>
               <div class="btn-row">
-                <button class="btn btn-success" type="button">Convert Selected</button>
-                <button class="btn btn-success" type="button" data-create-product-open="unknowns">Create New Product</button>
+                <button class="btn btn-success" type="button" data-unknown-requires-selection disabled>Convert Selected</button>
+                <button class="btn btn-success" type="button" data-product-dialog-open="create" data-dialog-context="unknowns" data-dialog-success-target="unknowns" data-dialog-success-message="Product created from selected unknowns." data-unknown-requires-selection disabled>Create New Product</button>
               </div>
             </div>
           </article>
 
-          <section class="success-strip" data-create-success="unknowns" hidden>
+          <section class="success-strip" data-dialog-success="unknowns" hidden>
             <p class="success-text">Product created from selected unknowns.</p>
           </section>
 
           <article class="panel">
             <h2>Unknown Ingredient Overview</h2>
             <div class="list">
-              <div class="item item-selectable" data-selected="true" data-create-source-item="Basil leaves - piece - Tomato Pasta">
+              <div class="item item-selectable" data-unknown-item data-create-source-item="Basil leaves - piece - Tomato Pasta" data-unknown-name="Basil leaves" data-unknown-unit="piece">
                 <label class="select-row">
                   <input type="checkbox" checked />
                   <div>
@@ -79,7 +79,7 @@
                   </div>
                 </label>
               </div>
-              <div class="item item-selectable" data-selected="true" data-create-source-item="Chef sauce mix - ml - Stir Fry Bowl">
+              <div class="item item-selectable" data-unknown-item data-create-source-item="Chef sauce mix - ml - Stir Fry Bowl" data-unknown-name="Chef sauce mix" data-unknown-unit="ml">
                 <label class="select-row">
                   <input type="checkbox" checked />
                   <div>
@@ -88,7 +88,7 @@
                   </div>
                 </label>
               </div>
-              <div class="item item-selectable" data-create-source-item="Green spice paste - g - Curry Bowl">
+              <div class="item item-selectable" data-unknown-item data-create-source-item="Green spice paste - g - Curry Bowl" data-unknown-name="Green spice paste" data-unknown-unit="g">
                 <label class="select-row">
                   <input type="checkbox" />
                   <div>
@@ -109,54 +109,6 @@
           </div>
         </section>
       </div>
-
-      <div class="dialog-backdrop" data-create-dialog-backdrop hidden></div>
-      <section class="overlay-dialog" data-create-dialog hidden>
-        <div class="dialog-head">
-          <div>
-            <h2>Create Product</h2>
-            <p class="muted" data-create-dialog-context>Create a reusable Product Catalog item from selected unknowns.</p>
-          </div>
-          <button class="btn btn-small" type="button" data-create-product-close>Close</button>
-        </div>
-        <div class="source-summary" data-create-source-summary>
-          <p class="item-title">Source Unknowns</p>
-          <div class="list compact-list" data-create-source-list>
-            <div class="item item-body compact-item">Basil leaves - piece - Tomato Pasta</div>
-            <div class="item item-body compact-item">Chef sauce mix - ml - Stir Fry Bowl</div>
-          </div>
-        </div>
-        <div class="form-grid">
-          <label>
-            Product Name
-            <input type="text" value="Fresh herb mix" data-create-product-name />
-          </label>
-          <label>
-            Default Location
-            <input type="text" value="Fridge" data-create-product-location />
-          </label>
-          <label>
-            Amount Per Package
-            <input type="number" value="1" data-create-product-amount />
-          </label>
-          <label>
-            Unit
-            <select data-create-product-unit>
-              <option>g</option>
-              <option>ml</option>
-              <option selected>piece</option>
-            </select>
-          </label>
-          <label>
-            Shelf Life (days)
-            <input type="number" value="7" data-create-product-shelf-life />
-          </label>
-          <div class="btn-row">
-            <button class="btn btn-success" type="button" data-create-product-save>Create Product</button>
-            <button class="btn" type="button" data-create-product-close>Cancel</button>
-          </div>
-        </div>
-      </section>
     </main>
   </div>
 </body>
