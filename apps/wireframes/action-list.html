@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Action List Wireframe</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script defer src="./wireframe.js"></script>
+</head>
+<body>
+  <div class="app-frame">
+    <header class="topbar">
+      <button class="btn" type="button" data-drawer-open aria-expanded="false">Menu</button>
+      <h1>Action List</h1>
+      <a class="link-btn" href="./index.html">Hub</a>
+    </header>
+
+    <aside class="drawer" data-drawer hidden>
+      <h2>Navigate</h2>
+      <nav>
+        <a class="drawer-link" href="./index.html">Hub</a>
+        <a class="drawer-link active" href="./action-list.html">Action List</a>
+        <a class="drawer-link" href="./product-catalog.html">Product Catalog</a>
+        <a class="drawer-link" href="./inventory-list.html">My Stock</a>
+        <a class="drawer-link" href="./meal-editor.html">Meal Editor</a>
+        <a class="drawer-link" href="./unknowns.html">Unknowns</a>
+      </nav>
+      <button class="btn" type="button" data-drawer-close>Close</button>
+    </aside>
+    <div class="drawer-backdrop" data-drawer-backdrop data-drawer-close hidden></div>
+
+    <main class="content">
+      <section class="panel">
+        <h2>Screen State</h2>
+        <div class="state-switch" data-state-target="action-list-state">
+          <button type="button" data-state="default" aria-pressed="true">Default</button>
+          <button type="button" data-state="error" aria-pressed="false">Error</button>
+        </div>
+      </section>
+
+      <div data-state-group="action-list-state">
+        <section data-state-panel="default" class="stack">
+          <article class="panel">
+            <h2>Action Tabs</h2>
+            <div class="tab-row" data-tab-target="action-list-tabs">
+              <button class="tab-btn" type="button" data-tab="urgent" aria-pressed="true">Urgent Ingredients</button>
+              <button class="tab-btn" type="button" data-tab="unknowns" aria-pressed="false">Unknowns</button>
+            </div>
+          </article>
+
+          <div data-tab-group="action-list-tabs">
+            <section class="stack" data-tab-panel="urgent">
+              <article class="panel">
+                <h2>Urgent Ingredients</h2>
+                <div class="filter-row">
+                  <button class="chip-btn" type="button" data-urgent-filter="all" aria-pressed="true">All (<span data-urgent-count="all">0</span>)</button>
+                  <button class="chip-btn" type="button" data-urgent-filter="use-soon" aria-pressed="false">Use soon (<span data-urgent-count="use-soon">0</span>)</button>
+                  <button class="chip-btn" type="button" data-urgent-filter="expired" aria-pressed="false">Expired (<span data-urgent-count="expired">0</span>)</button>
+                </div>
+                <div class="list" data-urgent-list>
+                  <div class="item" data-item-id="urgent-milk" data-item-label="Milk" data-context="urgent" data-unit="ml" data-amount="1" data-urgent-status="use-soon">
+                    <div class="item-head">
+                      <p class="item-title">Milk</p>
+                      <button class="icon-btn icon-btn-danger" type="button" data-quick-decrement aria-label="Remove one unit of Milk">-</button>
+                    </div>
+                    <p class="item-meta">Fridge - 1 carton - sell-by in 2 days</p>
+                    <span class="tag tag-danger">Use soon</span>
+                  </div>
+                  <div class="item" data-item-id="urgent-spinach" data-item-label="Spinach" data-context="urgent" data-unit="piece" data-amount="1" data-urgent-status="expired">
+                    <div class="item-head">
+                      <p class="item-title">Spinach</p>
+                      <button class="icon-btn icon-btn-danger" type="button" data-quick-decrement aria-label="Remove one unit of Spinach">-</button>
+                    </div>
+                    <p class="item-meta">Fridge - 1 bag - expired yesterday</p>
+                    <span class="tag tag-danger">Expired</span>
+                  </div>
+                </div>
+                <p class="muted" data-urgent-empty hidden>No urgent ingredients match this filter.</p>
+              </article>
+            </section>
+
+            <section class="stack" data-tab-panel="unknowns" hidden>
+              <article class="panel">
+                <div class="panel-head">
+                  <div>
+                    <h2>Unknowns</h2>
+                    <p class="muted">Ingredients that still need catalog cleanup or matching.</p>
+                  </div>
+                  <a class="btn" href="./unknowns.html">Open Unknowns</a>
+                </div>
+                <div class="list">
+                  <div class="item item-body">
+                    <p class="item-title">Basil leaves</p>
+                    <p class="item-meta">Unit: piece - Used in: Tomato Pasta</p>
+                  </div>
+                  <div class="item item-body">
+                    <p class="item-title">Chef sauce mix</p>
+                    <p class="item-meta">Unit: ml - Used in: Stir Fry Bowl</p>
+                  </div>
+                </div>
+              </article>
+            </section>
+          </div>
+
+          <section class="undo-strip" data-undo-region hidden>
+            <p class="undo-text" data-undo-text>Item updated.</p>
+            <button class="btn" type="button" data-undo-action>Undo</button>
+          </section>
+        </section>
+
+        <section class="panel" data-state-panel="error" hidden>
+          <h2>Action List Failed To Load</h2>
+          <p class="muted">Show a simple retry path while preserving the action-focused structure.</p>
+          <div class="btn-row">
+            <button class="btn btn-dark" type="button">Retry</button>
+            <a class="btn" href="./inventory-list.html">Go To My Stock</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

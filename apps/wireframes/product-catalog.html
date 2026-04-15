@@ -19,7 +19,7 @@
       <h2>Navigate</h2>
       <nav>
         <a class="drawer-link" href="./index.html">Hub</a>
-        <a class="drawer-link" href="./today.html">Today</a>
+        <a class="drawer-link" href="./action-list.html">Action List</a>
         <a class="drawer-link active" href="./product-catalog.html">Product Catalog</a>
         <a class="drawer-link" href="./inventory-list.html">My Stock</a>
         <a class="drawer-link" href="./meal-editor.html">Meal Editor</a>
@@ -44,8 +44,12 @@
             <h2>Catalog Actions</h2>
             <p class="muted">Reusable product templates for future My Stock entries.</p>
           </div>
-          <button class="btn btn-success" type="button">Add Product</button>
+          <button class="btn btn-success" type="button" data-create-product-open="catalog">Add Product</button>
         </div>
+      </section>
+
+      <section class="success-strip" data-create-success="catalog" hidden>
+        <p class="success-text">Product created.</p>
       </section>
 
       <section class="panel">
@@ -213,11 +217,56 @@
           <h2>No Matching Products</h2>
           <p class="muted">No Product Catalog items match the current name/location filters.</p>
           <div class="btn-row">
-            <button class="btn btn-success" type="button">Add Product</button>
+            <button class="btn btn-success" type="button" data-create-product-open="catalog">Add Product</button>
             <button class="btn" type="button" data-catalog-clear>Clear Filters</button>
           </div>
         </section>
       </div>
+
+      <div class="dialog-backdrop" data-create-dialog-backdrop hidden></div>
+      <section class="overlay-dialog" data-create-dialog hidden>
+        <div class="dialog-head">
+          <div>
+            <h2>Create Product</h2>
+            <p class="muted" data-create-dialog-context>Set up a new reusable Product Catalog item.</p>
+          </div>
+          <button class="btn btn-small" type="button" data-create-product-close>Close</button>
+        </div>
+        <div class="source-summary" data-create-source-summary hidden>
+          <p class="item-title">Source Unknowns</p>
+          <div class="list compact-list" data-create-source-list></div>
+        </div>
+        <div class="form-grid">
+          <label>
+            Product Name
+            <input type="text" placeholder="Fresh basil" data-create-product-name />
+          </label>
+          <label>
+            Default Location
+            <input type="text" placeholder="Fridge" data-create-product-location />
+          </label>
+          <label>
+            Amount Per Package
+            <input type="number" placeholder="1" data-create-product-amount />
+          </label>
+          <label>
+            Unit
+            <select data-create-product-unit>
+              <option>g</option>
+              <option>ml</option>
+              <option selected>piece</option>
+            </select>
+          </label>
+          <label>
+            Shelf Life (days)
+            <input type="number" placeholder="7" data-create-product-shelf-life />
+          </label>
+          <div class="btn-row">
+            <button class="btn btn-success" type="button" data-create-product-save>Create Product</button>
+            <button class="btn" type="button" data-create-product-close>Cancel</button>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 </body>

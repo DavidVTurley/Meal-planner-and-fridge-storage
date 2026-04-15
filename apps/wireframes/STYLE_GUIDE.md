@@ -16,10 +16,18 @@
 - My Stock freshness should be shown as days left/overdue.
 - Omit `Last updated` from My Stock expanded details in this wireframe stage.
 - Every quick decrement must expose an immediate `Undo` action.
-- On `Today`, summary controls can drive filtering for the urgent list beneath it.
-- Advanced controls should be hidden behind reveal buttons by default.
+- Action List can combine multiple action-focused queues behind lightweight tabs.
+- Lightweight, high-frequency view filters should stay visible by default.
 - Core overview information must be visible without opening advanced controls.
-- Advanced panels should open inline and close after primary apply/filter actions.
+- Heavier search/filter forms and secondary controls can open inline behind reveal buttons.
+- Action List urgent filter chips are an always-visible filter pattern.
+- Action List unknowns tab should stay lightweight and use the dedicated `Unknowns` screen for fuller conversion management.
+- Unknowns should support always-visible multi-select for batch resolution.
+- Unknowns batch actions should sit above the list they act on.
+- Batch conversion should support mapping multiple selected rows to one Product Catalog item or routing into Product Catalog for new-item creation.
+- Reusable create-product flows should use a centered overlay dialog instead of routing away from the current screen.
+- The create-product dialog should return users to the screen that opened it and show lightweight success feedback there.
+- When opened from Unknowns, the create-product dialog should show selected unknown rows as source context.
 - Product Catalog name/location filters should stay hidden behind a reveal button by default.
 
 ## Color Semantics

@@ -74,6 +74,52 @@ function setupStateToggles() {
   });
 }
 
+function setupTabs() {
+  const switchers = document.querySelectorAll("[data-tab-target]");
+  switchers.forEach((switcher) => {
+    const groupName = switcher.getAttribute("data-tab-target");
+    if (!groupName) {
+      return;
+    }
+
+    const group = document.querySelector(`[data-tab-group="${groupName}"]`);
+    if (!group) {
+      return;
+    }
+
+    const buttons = switcher.querySelectorAll("[data-tab]");
+    const panels = group.querySelectorAll("[data-tab-panel]");
+
+    const setTab = (tabName) => {
+      buttons.forEach((button) => {
+        const pressed = button.getAttribute("data-tab") === tabName;
+        button.setAttribute("aria-pressed", pressed ? "true" : "false");
+      });
+
+      panels.forEach((panel) => {
+        const visible = panel.getAttribute("data-tab-panel") === tabName;
+        panel.hidden = !visible;
+      });
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextTab = button.getAttribute("data-tab");
+        if (!nextTab) {
+          return;
+        }
+
+        setTab(nextTab);
+      });
+    });
+
+    const defaultButton = buttons[0];
+    if (defaultButton) {
+      setTab(defaultButton.getAttribute("data-tab"));
+    }
+  });
+}
+
 function formatAmount(value) {
   const rounded = Math.round(value * 1000) / 1000;
   return Number.isInteger(rounded) ? String(rounded) : String(rounded);
@@ -207,6 +253,96 @@ function setupInlineDialogs() {
 
       closeDialog(name);
     });
+  });
+}
+
+function setupCreateProductDialog() {
+  const dialog = document.querySelector("[data-create-dialog]");
+  const backdrop = document.querySelector("[data-create-dialog-backdrop]");
+  const openButtons = document.querySelectorAll("[data-create-product-open]");
+  const closeButtons = document.querySelectorAll("[data-create-product-close]");
+  const saveButton = document.querySelector("[data-create-product-save]");
+  const contextText = document.querySelector("[data-create-dialog-context]");
+  const sourceSummary = document.querySelector("[data-create-source-summary]");
+  const sourceList = document.querySelector("[data-create-source-list]");
+  const successMessages = document.querySelectorAll("[data-create-success]");
+
+  if (!dialog || !backdrop || openButtons.length === 0 || !saveButton) {
+    return;
+  }
+
+  let activeContext = "catalog";
+
+  const setSuccess = (context) => {
+    successMessages.forEach((message) => {
+      const visible = message.getAttribute("data-create-success") === context;
+      message.hidden = !visible;
+    });
+  };
+
+  const clearSuccess = () => {
+    successMessages.forEach((message) => {
+      message.hidden = true;
+    });
+  };
+
+  const closeDialog = () => {
+    dialog.hidden = true;
+    backdrop.hidden = true;
+  };
+
+  const updateDialogContext = (context) => {
+    activeContext = context;
+    clearSuccess();
+
+    if (context === "unknowns") {
+      if (contextText) {
+        contextText.textContent = "Create a reusable Product Catalog item from selected unknowns.";
+      }
+
+      if (sourceSummary && sourceList) {
+        const items = Array.from(document.querySelectorAll('[data-selected="true"][data-create-source-item]'));
+        sourceSummary.hidden = false;
+        sourceList.innerHTML = "";
+
+        items.forEach((item) => {
+          const line = document.createElement("div");
+          line.className = "item item-body compact-item";
+          line.textContent = item.getAttribute("data-create-source-item") ?? "";
+          sourceList.appendChild(line);
+        });
+      }
+
+      return;
+    }
+
+    if (contextText) {
+      contextText.textContent = "Set up a new reusable Product Catalog item.";
+    }
+
+    if (sourceSummary) {
+      sourceSummary.hidden = true;
+    }
+  };
+
+  openButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const context = button.getAttribute("data-create-product-open") ?? "catalog";
+      updateDialogContext(context);
+      dialog.hidden = false;
+      backdrop.hidden = false;
+    });
+  });
+
+  closeButtons.forEach((button) => {
+    button.addEventListener("click", closeDialog);
+  });
+
+  backdrop.addEventListener("click", closeDialog);
+
+  saveButton.addEventListener("click", () => {
+    closeDialog();
+    setSuccess(activeContext);
   });
 }
 
@@ -430,9 +566,11 @@ function setupQuickDecrement() {
 window.addEventListener("DOMContentLoaded", () => {
   setupDrawer();
   setupStateToggles();
+  setupTabs();
   setupAdvancedPanels();
   setupCardExpansion();
   setupInlineDialogs();
+  setupCreateProductDialog();
   setupCatalogFilters();
   setupUrgentFilters();
   setupQuickDecrement();

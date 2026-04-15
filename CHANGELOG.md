@@ -3,6 +3,10 @@
 ## 2026-04-13
 
 ### Changed
+- Added a reusable centered create-product dialog pattern, wired `Add Product` in `Product Catalog` to open it, updated `Unknowns` to create products in-place with source-context summary and return-to-screen success feedback, and simplified the `Action List` unknowns entry to link into the dedicated `Unknowns` page.
+- Reworked the `Unknowns` wireframe into a batch-conversion flow with the action panel above the list, always-visible multi-select checkboxes, batch convert-to-catalog behavior, and a `Create New Product` route into `Product Catalog`.
+- Renamed the `Today` wireframe to `Action List`, moved it to `apps/wireframes/action-list.html`, added `Urgent Ingredients` and `Unknowns` tabs, and updated wireframe navigation to point at the renamed screen.
+- Simplified the `Today` wireframe by removing the `Unknowns` summary chip, making urgent filter chips always visible, and updating style guidance so lightweight view filters stay visible while heavier filter forms can still use progressive disclosure.
 - Added a new `Product Catalog` wireframe screen with top-level hub/drawer navigation, hidden name/location filters, expandable product cards, and inline version-management dialogs.
 - Updated wireframe navigation, project-local rules, and style guidance to treat `Product Catalog` as a first-class user-facing flow alongside `Today`, `My Stock`, `Meal Editor`, and `Unknowns`.
 - Installed a user-level `rg.exe` in `C:\Users\david\AppData\Local\OpenAI\Codex\bin` so ripgrep resolves reliably in Codex sessions instead of failing from the packaged app path.
